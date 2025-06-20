@@ -1,0 +1,289 @@
+/* src/styles/Products.css */
+
+.products-page {
+    background-color: #f3f4f6;
+  }
+  
+  /* --- CHANGE 1: Re-implementing styles for the three-column layout --- */
+  .products-controls {
+    background: white;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .controls-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .controls-left, .controls-right {
+    flex-shrink: 0;
+  }
+  
+  .controls-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .back-to-home-link {
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .back-to-home-link:hover {
+    color: #3b82f6;
+  }
+  
+  .search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  /* ... (search and sort styles remain the same) ... */
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .search-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: #6b7280;
+  }
+  .sort-container {
+    flex-shrink: 0;
+  }
+  .sort-select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #374151;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  
+  /* --- CHANGE 2: Flexbox alignment for product cards --- */
+  .product-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    /* Make the card a flex container, column direction */
+    display: flex;
+    flex-direction: column; 
+  }
+  
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+  
+  .product-info {
+    padding: 1rem;
+    border-top: 1px solid #f3f4f6;
+    /* This makes the info section expand to fill available space */
+    flex-grow: 1; 
+    /* It's also a flex container to align its own children */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-main-info {
+    /* This section will stay at the top */
+    flex-grow: 1;
+  }
+  
+  .product-footer-details {
+    /* This section will stay at the bottom because .product-main-info is expanding */
+    /* no extra styles needed, flexbox handles it */
+  }
+  
+  /* ... (The rest of the styles remain largely the same) ... */
+  .products-main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem;
+  }
+  .products-count {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .product-image-container {
+    position: relative;
+    padding-top: 100%;
+    background-color: #f9fafb;
+  }
+  .product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .product-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    text-align: center;
+    padding: 1rem;
+  }
+  .new-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ef4444;
+    color: white;
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    z-index: 1;
+  }
+  .product-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    /* Give the title a fixed height to contain it */
+    height: 3rem; /* Approx 2 lines */
+    overflow: hidden;
+  }
+  .product-category {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin: 0 0 0.75rem 0;
+    text-transform: uppercase;
+  }
+  .product-price {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-top: 0.5rem; /* Add some space above the price */
+  }
+  .product-availability {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  .load-more-container {
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .load-more-button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .load-more-button:hover:not(:disabled) {
+    background-color: #2563eb;
+  }
+  .load-more-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+  .loading-container, .error-container {
+    text-align: center;
+    padding: 4rem;
+    color: #6b7280;
+  }
+  @media (max-width: 768px) {
+    .controls-container {
+      flex-direction: column;
+    }
+  }
+  
+  /* No Results message */
+  /* Add this to the end of src/styles/Products.css */
+  
+  .no-products-found {
+    grid-column: 1 / -1; /* Make this div span all columns of the grid */
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: white;
+    border-radius: 8px;
+  }
+  
+  .no-products-found h3 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .no-products-found p {
+    color: #6b7280;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  /* dropdown styling */
+  /* Add these styles to src/styles/Products.css */
+  
+  /* Update the controls-left to accommodate the new filter */
+  .controls-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .filter-container {
+    flex-shrink: 0;
+  }
+  
+  .category-select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #374151;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 200px;
+  }
