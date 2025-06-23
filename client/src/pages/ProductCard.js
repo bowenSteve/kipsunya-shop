@@ -4,6 +4,7 @@ import { useUser } from "../context/UserContext";
 import "../styles/ProductCard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import API_BASE_URL from '../config'
 
 // Icons used within the product card body
 const BuyNowIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg> );
@@ -27,7 +28,7 @@ function ProductCard() {
                 setLoading(true);
                 setError(null);
                 
-                const response = await fetch(`/api/products/${id}/`);
+                const response = await fetch(`${API_BASE_URL}/api/products/${id}/`);
                 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 

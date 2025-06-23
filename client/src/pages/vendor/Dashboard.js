@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useUser } from '../../context/UserContext'; // Adjust import path as needed
 import '../../styles/Dashboard.css'; 
-
+import API_BASE_URL from '../../config';
 const VendorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [products, setProducts] = useState([]);
@@ -50,7 +50,7 @@ const VendorDashboard = () => {
   // API calls
   const apiCall = async (url, options = {}) => {
     const token = getAuthToken();
-    const response = await fetch(`/api${url}`, {
+    const response = await fetch(`${API_BASE_URL}/api${url}`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,

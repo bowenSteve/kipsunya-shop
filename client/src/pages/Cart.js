@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/Cart.css";
 import Footer from "../components/Footer";
+import API_BASE_URL from "../config";
 
 function Cart() {
     const [cartItems, setCartItems] = useState([]);
@@ -34,7 +35,7 @@ function Cart() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch('/api/cart/', {
+            const response = await fetch(`${API_BASE_URL}/api/cart/`, {
                 headers
             });
 
@@ -99,7 +100,7 @@ function Cart() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch(`http://127.0.0.1:8000/api/cart/items/${itemId}/`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${itemId}/`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ quantity: newQuantity })
@@ -147,7 +148,7 @@ function Cart() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch(`http://127.0.0.1:8000/api/cart/items/${itemId}/remove/`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${itemId}/remove/`, {
                 method: 'DELETE',
                 headers
             });
@@ -242,7 +243,7 @@ function Cart() {
 
             console.log('Sending checkout data:', checkoutData);
 
-            const response = await fetch('http://127.0.0.1:8000/api/cart/checkout/', {
+            const response = await fetch(`${API_BASE_URL}/api/cart/checkout/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

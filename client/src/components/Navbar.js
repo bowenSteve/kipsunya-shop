@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import "../styles/Navbar.css"; 
-
+import API_BASE_URL from '../config'
 function Navbar() {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [cartItemCount, setCartItemCount] = useState(0);
@@ -25,7 +25,7 @@ function Navbar() {
 
             // 3. The incorrect 'if' statement is now gone, so the code proceeds.
             try {
-                const response = await fetch('/api/cart/', {
+                const response = await fetch(`${API_BASE_URL}/api/cart/`, {
                     headers: {
                         'Content-Type': 'application/json',
                         // Use the token we just confirmed exists.

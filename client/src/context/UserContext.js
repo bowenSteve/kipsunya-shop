@@ -1,8 +1,8 @@
 // src/contexts/UserContext.js - Updated to not auto-login after registration
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-
+import API_BASE_URL from '../config';
 // Backend API base URL
-const API_BASE_URL = '/api';
+const API_BASE_API = `${API_BASE_URL}/api`;
 
 const initialState = {
   user: null,
@@ -157,7 +157,7 @@ export function UserProvider({ children }) {
           }
 
           // Token is valid, validate with backend
-          const response = await fetch(`${API_BASE_URL}/auth/verify/`, {
+          const response = await fetch(`${API_BASE_API}/auth/verify/`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -198,7 +198,7 @@ export function UserProvider({ children }) {
   // Refresh token function
   const refreshAuthToken = async (refreshToken) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh/`, {
+      const response = await fetch(`${API_BASE_API}/auth/refresh/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -235,7 +235,7 @@ export function UserProvider({ children }) {
     dispatch({ type: USER_ACTIONS.LOGIN_START });
     
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+      const response = await fetch(`${API_BASE_API}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -285,7 +285,7 @@ export function UserProvider({ children }) {
     dispatch({ type: USER_ACTIONS.LOGIN_START });
     
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register/`, {
+      const response = await fetch(`${API_BASE_API}/auth/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -330,7 +330,7 @@ export function UserProvider({ children }) {
       const refreshToken = localStorage.getItem('kipsunya_refresh_token');
       
       if (token) {
-        await fetch(`${API_BASE_URL}/auth/logout/`, {
+        await fetch(`${API_BASE_API}/auth/logout/`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -351,7 +351,7 @@ export function UserProvider({ children }) {
   const updateUser = async (updates) => {
     try {
       const token = localStorage.getItem('kipsunya_jwt_token');
-      const response = await fetch(`${API_BASE_URL}/auth/profile/`, {
+      const response = await fetch(`${API_BASE_API}/auth/profile/`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

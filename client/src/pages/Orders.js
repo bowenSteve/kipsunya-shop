@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/Orders.css";
 import Footer from "../components/Footer";
+import API_BASE_URL from "../config";
 
 function Orders() {
     const [orders, setOrders] = useState([]);
@@ -49,8 +50,8 @@ function Orders() {
             try {
                 const token = getAuthToken();
                 const endpoint = user.role === 'vendor' 
-                    ? '/api/orders/'
-                    : '/api/orders/';
+                    ? `${API_BASE_URL}/api/orders/`
+                    : `${API_BASE_URL}/api/orders/`;
 
                 const response = await fetch(endpoint, {
                     headers: {
@@ -225,7 +226,7 @@ function Orders() {
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const token = getAuthToken();
-            const response = await fetch(`http://127.0.0.1:8000/api/vendor/orders/${orderId}/status/`, {
+            const response = await fetch(`${API_BASE_URL}//api/vendor/orders/${orderId}/status/`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

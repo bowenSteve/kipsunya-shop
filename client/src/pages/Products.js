@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import "../styles/Products.css";
+import API_BASE_URL from '../config'
 
 function Products() {
     const [allProducts, setAllProducts] = useState([]);
@@ -33,7 +34,7 @@ useEffect(() => {
         try {
             setLoading(true);
             let allFetchedProducts = [];
-            let nextUrl = '/api/all_products/'; // Start with the initial URL
+            let nextUrl = `${API_BASE_URL}/api/all_products/`; // Start with the initial URL
 
             // Loop as long as there is a 'next' URL to follow
             while (nextUrl) {

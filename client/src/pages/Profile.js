@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/Profile.css";
 import Footer from "../components/Footer";
+import API_BASE_URL from "../config";
 
 function Profile() {
     const [isEditing, setIsEditing] = useState(false);
@@ -112,7 +113,7 @@ function Profile() {
         setSuccess(null);
         try {
             const token = getAuthToken();
-            const response = await fetch(`/api/auth/profile/`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(formData)

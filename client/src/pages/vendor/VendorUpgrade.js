@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserContext";
 import "../../styles/VendorUpgrade.css";
 import Footer from "../../components/Footer";
+import API_BASE_URL from "../../config";
 
 function VendorUpgrade() {
     const [currentStep, setCurrentStep] = useState(1);
@@ -176,7 +177,7 @@ function VendorUpgrade() {
 
         try {
             const token = getAuthToken();
-            const response = await fetch(`/api/auth/upgrade-to-vendor/`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/upgrade-to-vendor/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
