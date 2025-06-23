@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',  # Add this for token blacklisting
     'django_filters',
     'corsheaders',
+    "django_extensions",
     
     # Your apps
     'products',
@@ -164,13 +165,24 @@ WSGI_APPLICATION = 'server.wsgi.application'
 import dj_database_url
 import os
 
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://kipsunya_user:Q1ms7ghqybStMv63epy3EaFSWtpH9tTh@dpg-d19terbipnbc739fqqgg-a/kipsunya',
+#         conn_max_age=600,  # keeps DB connections open for performance
+#         ssl_require=True   # force SSL, required by Render DBs
+#     )
+# }
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://kipsunya_user:Q1ms7ghqybStMv63epy3EaFSWtpH9tTh@dpg-d19terbipnbc739fqqgg-a/kipsunya',
-        conn_max_age=600,  # keeps DB connections open for performance
-        ssl_require=True   # force SSL, required by Render DBs
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'kipsunya',
+        'USER': 'kipsunya_user',
+        'PASSWORD': 'Q1ms7ghqybStMv63epy3EaFSWtpH9tTh',
+        'HOST': 'dpg-d19terbipnbc739fqqgg-a.oregon-postgres.render.com',
+        'PORT': '5432', # Default port for PostgreSQL
+    }
 }
+
 
 
 # Password validation

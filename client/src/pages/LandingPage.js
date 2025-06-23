@@ -9,18 +9,18 @@ function LandingPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    
+
     // Fetch products when component mounts
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('https://kipsunya-shop.onrender.com/api/all_products/');
+                const response = await fetch('/api/all_products/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                
+
                 if (data && data.results && Array.isArray(data.results)) {
                     setProducts(data.results);
                 } else if (Array.isArray(data)) {
@@ -90,16 +90,16 @@ function LandingPage() {
                             <div className="no-products"><p>No products available.</p></div>
                         ) : (
                             products.slice(0, 15).map((product) => (
-                                <div 
-                                    key={product.id} 
+                                <div
+                                    key={product.id}
                                     className="product-card"
                                     onClick={() => handleProductClick(product)}
                                 >
                                     <div className="product-image-container">
                                         {product.featured && <span className="new-badge">FEATURED</span>}
                                         {product.image_url ? (
-                                            <img 
-                                                src={product.image_url} 
+                                            <img
+                                                src={product.image_url}
                                                 alt={product.name}
                                                 className="product-image"
                                             />

@@ -25,26 +25,51 @@ function Products() {
     const navigate = useNavigate();
 
     // Effect to fetch initial data
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch('/api/all_products/');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    // Replace your existing initial data fetching useEffect with this one.
+
+useEffect(() => {
+    // This function will now handle fetching all pages from the paginated API
+    const fetchAllProducts = async () => {
+        try {
+            setLoading(true);
+            let allFetchedProducts = [];
+            let nextUrl = '/api/all_products/'; // Start with the initial URL
+
+            // Loop as long as there is a 'next' URL to follow
+            while (nextUrl) {
+                const response = await fetch(nextUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
-                let products = Array.isArray(data.results) ? data.results : Array.isArray(data) ? data : [];
-                setAllProducts(products);
-                const uniqueCategories = [...new Set(products.map(p => p.category?.name).filter(Boolean))];
-                setCategories(uniqueCategories);
-            } catch (err) {
-                console.error('Error fetching products:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
+                
+                // Add the results from the current page to our master list
+                if (data.results && Array.isArray(data.results)) {
+                    allFetchedProducts.push(...data.results);
+                }
+                
+                // Update the nextUrl to the one provided in the API response.
+                // If data.next is null, the loop will terminate.
+                nextUrl = data.next;
             }
-        };
-        fetchProducts();
-    }, []);
+
+            // Now we have all 84 products
+            setAllProducts(allFetchedProducts);
+
+            // Derive categories from the complete list
+            const uniqueCategories = [...new Set(allFetchedProducts.map(p => p.category?.name).filter(Boolean))];
+            setCategories(uniqueCategories);
+
+        } catch (err) {
+            console.error('Error fetching all products:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchAllProducts();
+}, []); // This effect still only runs once on component mount
     
     // --- CHANGE 1: Add a useEffect to automatically reset the search ---
     // This hook watches the live searchTerm from the input.
