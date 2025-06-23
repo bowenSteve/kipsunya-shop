@@ -73,7 +73,7 @@ function ProductCard() {
         try {
             setAddingToCart(true);
             const token = getAuthToken();
-            const response = await fetch('http://127.0.0.1:8000/api/cart/add/', {
+            const response = await fetch(`${API_BASE_URL}/api/cart/add/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ product_id: product.id, quantity: quantity })
