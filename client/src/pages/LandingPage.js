@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar'; // Import the new Navbar
 import Footer from '../components/Footer';
 import "../styles/LandingPage.css";
+import API_BASE_URL from '../config'
 
 function LandingPage() {
     const [products, setProducts] = useState([]);
@@ -15,7 +16,7 @@ function LandingPage() {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/all_products/');
+                const response = await fetch(`${API_BASE_URL}/api/all_products/`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
