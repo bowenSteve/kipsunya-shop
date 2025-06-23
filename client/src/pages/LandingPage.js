@@ -15,7 +15,7 @@ function LandingPage() {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/all_products/');
+                const response = await fetch('https://kipsunya-shop.onrender.com/api/all_products/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -25,6 +25,7 @@ function LandingPage() {
                     setProducts(data.results);
                 } else if (Array.isArray(data)) {
                     setProducts(data);
+                    console.log(data)
                 } else {
                     throw new Error('Unexpected API response format.');
                 }

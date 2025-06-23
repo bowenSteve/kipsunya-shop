@@ -113,6 +113,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "https://kipsunya-shop.onrender.com"
 ]
+ALLOWED_HOSTS = ['kipsunya-shop.onrender.com', 'localhost', '127.0.0.1']
 
 CORS_ALLOW_CREDENTIALS = True
 
