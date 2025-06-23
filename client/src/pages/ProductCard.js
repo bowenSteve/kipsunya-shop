@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/ProductCard.css";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 // Icons used within the product card body
@@ -26,7 +27,7 @@ function ProductCard() {
                 setLoading(true);
                 setError(null);
                 
-                const response = await fetch(`http://127.0.0.1:8000/api/products/${id}/`);
+                const response = await fetch(`/api/products/${id}/`);
                 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
@@ -125,6 +126,8 @@ function ProductCard() {
     }
 
     return (
+        <div>
+            <Navbar />
         <div className="product-card-page">
             <div className="product-card-container">
                 <div className="product-card-breadcrumb">
@@ -238,6 +241,7 @@ function ProductCard() {
             </div>
             
             <Footer />
+        </div>
         </div>
     );
 }
