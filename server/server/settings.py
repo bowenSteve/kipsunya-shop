@@ -112,6 +112,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React development server
     "http://127.0.0.1:3000",
+    "https://kipsunya-shop.vercel.app/"
 ]
 ALLOWED_HOSTS = ['kipsunya-shop.onrender.com', 'localhost', '127.0.0.1']
 
