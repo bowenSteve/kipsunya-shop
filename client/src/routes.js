@@ -10,6 +10,7 @@ import Orders from "./pages/Orders";
 import Cart from "./pages/Cart";
 import VendorUpgrade from "./pages/vendor/VendorUpgrade";
 import Dashboard from "./pages/vendor/Dashboard";
+import Admin from "./pages/admin/Admin"; // Correct path to Admin.js
 
 import { ProtectedRoute, PublicRoute } from './context/RouteGuards';
 
@@ -86,9 +87,9 @@ export default [
   //   element: <ProtectedRoute allowedRoles={['customer', 'admin']}><Dashboard /></ProtectedRoute>,
   // },
   
-  // Admin-only routes
-  // {
-  //   path: "/admin",
-  //   element: <ProtectedRoute allowedRoles={['admin']}><AdminPanel /></ProtectedRoute>,
-  // },
+  //Admin-only routes
+  {
+    path: "/admin",
+    element: <ProtectedRoute allowedRoles={['admin']}><Admin /></ProtectedRoute>,
+  },
 ];

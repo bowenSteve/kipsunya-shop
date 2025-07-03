@@ -1,0 +1,206 @@
+/* src/styles/Admin.css */
+
+/* --- Admin Variables & Base --- */
+:root {
+    --admin-bg: #f3f4f6;
+    --admin-sidebar-bg: #1f2937;
+    --admin-sidebar-text: #d1d5db;
+    --admin-sidebar-text-hover: #ffffff;
+    --admin-sidebar-active-bg: #4f46e5; /* Using primary color from main site */
+    --admin-card-bg: #ffffff;
+    --admin-border: #e5e7eb;
+    --pc-primary: #4f46e5;
+    --pc-danger: #ef4444;
+    --text-danger: #dc2626;
+  }
+  
+  .admin-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* --- Sidebar --- */
+  .admin-sidebar {
+    background-color: var(--admin-sidebar-bg);
+    color: var(--admin-sidebar-text);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+  }
+  
+  .admin-sidebar-header {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .admin-logo {
+    font-size: 1.25rem; font-weight: 700;
+    color: var(--admin-sidebar-text-hover);
+    text-decoration: none; display: block;
+  }
+  .admin-panel-title {
+    font-size: 0.8rem; letter-spacing: 1px;
+    text-transform: uppercase; margin-top: 0.25rem;
+    display: block; opacity: 0.7;
+  }
+  
+  .admin-nav {
+    display: flex; flex-direction: column; gap: 0.5rem;
+    flex-grow: 1;
+  }
+  .admin-nav a {
+    color: var(--admin-sidebar-text); text-decoration: none;
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem 1rem; border-radius: 8px;
+    font-weight: 500; transition: all 0.2s ease;
+  }
+  .admin-nav a:hover {
+    background-color: #374151; color: var(--admin-sidebar-text-hover);
+  }
+  .admin-nav a.active {
+    background-color: var(--admin-sidebar-active-bg);
+    color: var(--admin-sidebar-text-hover);
+  }
+  .admin-nav a svg { width: 20px; height: 20px; }
+  
+  .admin-sidebar-footer {
+    border-top: 1px solid #374151; padding-top: 1rem;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .admin-user-info { display: flex; align-items: center; gap: 0.75rem; }
+  .admin-user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background-color: var(--pc-primary); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+  }
+  .admin-user-details { display: flex; flex-direction: column; }
+  .admin-user-name { font-weight: 600; font-size: 0.9rem; color: white; }
+  .admin-user-email { font-size: 0.75rem; opacity: 0.7; }
+  .admin-logout-btn {
+    background: none; border: 1px solid #4b5563;
+    color: var(--admin-sidebar-text); padding: 0.5rem;
+    border-radius: 8px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  .admin-logout-btn:hover { background-color: #374151; border-color: #6b7280; }
+  .admin-logout-btn svg { width: 18px; height: 18px; }
+  
+  /* --- Main Content --- */
+  .admin-content {
+    background-color: var(--admin-bg);
+    overflow-y: auto;
+  }
+  .admin-content-inner {
+    padding: 2rem;
+  }
+  .admin-page-title {
+    font-size: 1.75rem; font-weight: 700;
+    color: #111827; margin-bottom: 1.5rem;
+  }
+  .admin-page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* --- Reusable Components (Cards, Tables, Buttons) --- */
+  .admin-card {
+    background-color: var(--admin-card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02);
+    margin-bottom: 1.5rem;
+  }
+  .admin-card-title {
+    font-size: 1.1rem; font-weight: 600;
+    color: #111827; margin-bottom: 1rem;
+  }
+  
+  .admin-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .kpi-card { display: flex; align-items: center; gap: 1rem; }
+  .kpi-icon { font-size: 2rem; }
+  .kpi-title { display: block; font-size: 0.9rem; color: #6b7280; }
+  .kpi-value { display: block; font-size: 1.5rem; font-weight: 700; color: #111827; }
+  
+  .admin-charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+  .doughnut-container { position: relative; height: 300px; }
+  
+  .admin-table { width: 100%; border-collapse: collapse; }
+  .admin-table th, .admin-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--admin-border); }
+  .admin-table th { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; }
+  .admin-table td { font-size: 0.9rem; color: #374151; }
+  .admin-table tbody tr:hover { background-color: #f9fafb; }
+  .admin-table-actions { display: flex; gap: 0.5rem; }
+  
+  .admin-action-btn {
+    background-color: #eef2ff; color: var(--pc-primary);
+    border: none; padding: 0.3rem 0.75rem; border-radius: 6px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+  }
+  .admin-action-btn:hover { background-color: #e0e7ff; }
+  .admin-action-btn.btn-danger { background-color: #fee2e2; color: var(--text-danger); }
+  .admin-action-btn.btn-danger:hover { background-color: #fecaca; }
+  
+  .admin-btn-primary {
+      background-color: var(--pc-primary); color: white;
+      border: none; padding: 0.6rem 1.25rem; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+  }
+  .admin-btn-primary:hover { background-color: #4338ca; }
+  
+  .admin-status-badge {
+    padding: 0.2rem 0.6rem; border-radius: 99px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .status-published, .status-shipped, .status-delivered { background-color: #d1fae5; color: #065f46; }
+  .status-draft, .status-pending, .status-processing { background-color: #fef3c7; color: #92400e; }
+  
+  .text-danger { color: var(--text-danger); font-weight: 500; }
+
+
+/* Add these styles to the bottom of src/styles/Admin.css */
+
+.admin-table a.text-primary {
+    color: var(--pc-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .admin-table a.text-primary:hover {
+    text-decoration: underline;
+  }
+  
+  .font-medium {
+    font-weight: 500;
+  }
+  
+  /* For OrderList status dropdown */
+  .admin-action-select {
+    background-color: #f9fafb;
+    border: 1px solid var(--admin-border);
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #374151;
+    cursor: pointer;
+  }
+  .admin-action-select:hover {
+    border-color: #9ca3af;
+  }
+  
+  /* For CustomerList roles */
+  .admin-role-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .role-customer { background-color: #e0e7ff; color: #4338ca; }
+  .role-vendor { background-color: #d1fae5; color: #065f46; }
+  .role-admin { background-color: #fee2e2; color: #991b1b; }
+  
+  /* Extend status badges for more states */
+  .status-processing { background-color: #fef3c7; color: #92400e; }
+  .status-cancelled { background-color: #fee2e2; color: #991b1b; }

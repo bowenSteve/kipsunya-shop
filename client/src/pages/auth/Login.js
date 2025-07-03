@@ -45,46 +45,34 @@ function Login() {
         // Clear error when user starts typing
         if (error) clearError();
     };
+// src/pages/auth/Login.js - FIXED
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            console.log('Login - Starting login process');
-            
-            // Basic validation
-            if (!formData.email || !formData.password) {
-                throw new Error('Please fill in all fields');
-            }
-
-            if (!formData.email.includes('@')) {
-                throw new Error('Please enter a valid email address');
-            }
-
-            // Use the login function from context
-            const result = await login(formData);
-            
-            console.log('Login - Login result:', result);
-            
-            if (result.success) {
-                console.log('Login - Success! Redirecting to HOME PAGE');
-                
-                // CRITICAL: Always redirect to HOME page (/) not dashboard
-                navigate('/', { 
-                    replace: true,
-                    state: { 
-                        loginSuccess: true,
-                        user: result.user 
-                    }
-                });
-            }
-            // Error handling is done by the context
-            
-        } catch (err) {
-            // Handle client-side validation errors
-            console.error('Login - Client-side error:', err.message);
+    try {
+        console.log('Login - Starting login process');
+        
+        if (!formData.email || !formData.password) {
+            throw new Error('Please fill in all fields');
         }
-    };
+
+        if (!formData.email.includes('@')) {
+            throw new Error('Please enter a valid email address');
+        }
+
+        // Use the login function from context.
+        // We don't even need to wait for the result here, as the context
+        // update will trigger the redirect automatically via PublicRoute.
+        await login(formData);
+        
+        // No more navigation logic here!
+        // The PublicRoute component will handle the redirect.
+        
+    } catch (err) {
+        console.error('Login - Client-side error:', err.message);
+    }
+};
 
     const handleGoogleLogin = async () => {
         try {

@@ -126,9 +126,10 @@ function LandingPage() {
 
                 {!loading && !error && products.length > 15 && (
                     <div className="products-footer">
-                        <p>Showing 15 of {products.length} products</p>
+                        {/* <p>Showing 15 of {products.length} products</p> */}
                         <button className="view-all-footer-button" onClick={() => navigate('/products')}>
-                            View All {products.length} Products
+                            {/* View All {products.length} Products */}
+                            View All Products
                         </button>
                     </div>
                 )}

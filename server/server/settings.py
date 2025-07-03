@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'authentication',                     # Add this (your new auth app)
     'orders',
     'cart',
+    'admin_panel',
 ]
 
 DEFAULT_COMMISSION_RATE = 15.0
@@ -111,8 +112,7 @@ SIMPLE_JWT = {
 # Enhanced CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React development server
-    "http://127.0.0.1:3000",
-    "https://kipsunya-shop.vercel.app/"
+    "http://127.0.0.1:3000"
 ]
 ALLOWED_HOSTS = ['kipsunya-shop.onrender.com', 'localhost', '127.0.0.1']
 
