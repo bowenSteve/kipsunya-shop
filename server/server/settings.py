@@ -167,7 +167,7 @@ import os
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://kipsunya_user:Q1ms7ghqybStMv63epy3EaFSWtpH9tTh@dpg-d19terbipnbc739fqqgg-a/kipsunya',
+        default='postgresql://kipsunya_biz_user:FVTwweC1IwaDcFF1lybkuTYGr7LDbD7V@dpg-d1togoer433s73dvmbeg-a.oregon-postgres.render.com/kipsunya_biz',
         conn_max_age=600,  # keeps DB connections open for performance
         ssl_require=True   # force SSL, required by Render DBs
     )
@@ -175,10 +175,10 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'kipsunya',
-#         'USER': 'kipsunya_user',
-#         'PASSWORD': 'Q1ms7ghqybStMv63epy3EaFSWtpH9tTh',
-#         'HOST': 'dpg-d19terbipnbc739fqqgg-a.oregon-postgres.render.com',
+#         'NAME': 'kipsunya_biz',
+#         'USER': 'kipsunya_biz_user',
+#         'PASSWORD': 'kipsunya_biz_user:FVTwweC1IwaDcFF1lybkuTYGr7LDbD7V',
+#         'HOST': 'dpg-d1togoer433s73dvmbeg-a.oregon-postgres.render.com',
 #         'PORT': '5432', # Default port for PostgreSQL
 #     }
 # }

@@ -1,4 +1,11 @@
 # server/seed_with_vendors.py
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.settings')
+django.setup()
+
+
 from products.models import Category, Product
 from authentication.models import UserProfile
 from django.contrib.auth.models import User
