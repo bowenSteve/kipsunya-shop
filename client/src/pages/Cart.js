@@ -1,64 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { useCart } from "../context/CartContext";
 import "../styles/Cart.css";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config";
 
 function Cart() {
-    const [cartItems, setCartItems] = useState([]);
-    const [cartSummary, setCartSummary] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [updating, setUpdating] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [processingCheckout, setProcessingCheckout] = useState(false);
+    const [success, setSuccess] = useState(null);
+    const [error, setError] = useState(null);
 
     const { isAuthenticated, user, logout, getAuthToken } = useUser();
+    const {
+        items: cartItems,
+        totalItems,
+        loading,
+        updateItemQuantity,
+        removeFromCart,
+        formatCurrency,
+        calculateTotals
+    } = useCart();
     const navigate = useNavigate();
 
-    // Fetch cart items from API
+    // Initialize selected items when cart items change
     useEffect(() => {
-        fetchCartItems();
-    }, []);
-
-    const fetchCartItems = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            
-            const headers = {};
-            const token = getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            const response = await fetch(`${API_BASE_URL}/api/cart/`, {
-                headers
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Cart data:', data);
-                setCartItems(data.items || []);
-                setCartSummary({
-                    total_items: data.total_items || 0,
-                    subtotal: data.subtotal || 0,
-                    total_amount: data.total_amount || 0
-                });
-                setSelectedItems(new Set(data.items?.map(item => item.id) || []));
-            } else {
-                throw new Error('Failed to fetch cart items');
-            }
-        } catch (error) {
-            console.error('Error fetching cart:', error);
-            setError('Failed to load cart items');
-        } finally {
-            setLoading(false);
-        }
-    };
+        setSelectedItems(new Set(cartItems.map(item => item.id)));
+    }, [cartItems]);
 
     // Handle profile menu toggle
     const toggleProfileMenu = () => {
@@ -84,101 +54,37 @@ function Cart() {
         return () => document.removeEventListener('click', handleClickOutside);
     }, [showProfileMenu]);
 
-    // Update item quantity
-    const updateQuantity = async (itemId, newQuantity) => {
+    // Update item quantity using cart context
+    const handleUpdateQuantity = async (itemId, newQuantity) => {
         if (newQuantity < 1) return;
 
-        try {
-            setUpdating(true);
-            setError(null);
-            
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            const token = getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            const response = await fetch(`${API_BASE_URL}/api/cart/items/${itemId}/`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ quantity: newQuantity })
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                
-                setCartItems(prev => 
-                    prev.map(item => 
-                        item.id === itemId 
-                            ? { ...item, quantity: newQuantity, total_price: responseData.cart_item?.total_price || (item.unit_price * newQuantity) }
-                            : item
-                    )
-                );
-                
-                if (responseData.cart_summary) {
-                    setCartSummary(responseData.cart_summary);
-                }
-                
-                setSuccess('Quantity updated successfully');
-                setTimeout(() => setSuccess(null), 3000);
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update quantity');
-            }
-        } catch (error) {
-            console.error('Error updating quantity:', error);
-            setError(error.message || 'Failed to update item quantity');
+        const result = await updateItemQuantity(itemId, newQuantity);
+        if (result.success) {
+            setSuccess(result.message);
+            setTimeout(() => setSuccess(null), 3000);
+        } else {
+            setError(result.error);
             setTimeout(() => setError(null), 5000);
-        } finally {
-            setUpdating(false);
         }
     };
 
-    // Remove item from cart
-    const removeItem = async (itemId) => {
-        try {
-            setUpdating(true);
-            setError(null);
-            
-            const headers = {};
-            const token = getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+    // Remove item using cart context
+    const handleRemoveItem = async (itemId) => {
+        const result = await removeFromCart(itemId);
 
-            const response = await fetch(`${API_BASE_URL}/api/cart/items/${itemId}/remove/`, {
-                method: 'DELETE',
-                headers
-            });
+        // Update selected items
+        setSelectedItems(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(itemId);
+            return newSet;
+        });
 
-            if (response.ok) {
-                const responseData = await response.json();
-                
-                setCartItems(prev => prev.filter(item => item.id !== itemId));
-                setSelectedItems(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(itemId);
-                    return newSet;
-                });
-                
-                if (responseData.cart_summary) {
-                    setCartSummary(responseData.cart_summary);
-                }
-                
-                setSuccess(responseData.message || 'Item removed from cart');
-                setTimeout(() => setSuccess(null), 3000);
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to remove item');
-            }
-        } catch (error) {
-            console.error('Error removing item:', error);
-            setError(error.message || 'Failed to remove item from cart');
+        if (result.success) {
+            setSuccess(result.message);
+            setTimeout(() => setSuccess(null), 3000);
+        } else {
+            setError(result.error);
             setTimeout(() => setError(null), 5000);
-        } finally {
-            setUpdating(false);
         }
     };
 
@@ -206,12 +112,17 @@ function Cart() {
 
     // Calculate totals for selected items
     const getSelectedItems = () => cartItems.filter(item => selectedItems.has(item.id));
-    const getSubtotal = () => getSelectedItems().reduce((total, item) => total + (item.unit_price * item.quantity), 0);
-    const getTax = () => getSubtotal() * 0.16; // 16% VAT
-    const getShipping = () => getSelectedItems().length > 0 ? 0 : 0; // Free shipping for now
-    const getTotal = () => getSubtotal() + getTax() + getShipping();
+    const getSelectedTotals = () => {
+        const selectedItemsArray = getSelectedItems();
+        const subtotal = selectedItemsArray.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
+        const taxAmount = subtotal * 0.16; // 16% VAT
+        const shippingFee = 0; // Free shipping
+        const total = subtotal + taxAmount + shippingFee;
 
-    // Simple checkout function
+        return { subtotal, taxAmount, shippingFee, total };
+    };
+
+    // Improved checkout function
     const handleCheckout = async () => {
         if (selectedItems.size === 0) {
             setError('Please select items to checkout');
@@ -220,24 +131,33 @@ function Cart() {
         }
 
         if (!isAuthenticated) {
-            navigate('/login');
+            navigate('/login', { state: { from: '/cart', message: 'Please log in to proceed with checkout' } });
+            return;
+        }
+
+        // Check if user has required profile information
+        if (!user?.first_name || !user?.last_name) {
+            setError('Please complete your profile before checkout');
+            setTimeout(() => {
+                navigate('/profile');
+            }, 2000);
             return;
         }
 
         try {
             setProcessingCheckout(true);
             setError(null);
-            
+
             const token = getAuthToken();
-            
-            // Simple checkout data - you can enhance this with a form later
+
+            // Use user's actual information for checkout
             const checkoutData = {
                 payment_method: 'mpesa',
-                shipping_address: '123 Test Street, Nairobi CBD',
-                shipping_city: 'Nairobi',
-                shipping_country: 'Kenya',
-                shipping_phone: '+254700000000',
-                notes: 'Order from cart',
+                shipping_address: user.address || `${user.first_name} ${user.last_name}, Nairobi`,
+                shipping_city: user.city || 'Nairobi',
+                shipping_country: user.country || 'Kenya',
+                shipping_phone: user.phone || '+254700000000',
+                notes: `Order from cart - ${selectedItems.size} items`,
                 special_instructions: ''
             };
 
@@ -257,11 +177,10 @@ function Cart() {
 
             if (response.ok) {
                 setSuccess(`Order ${responseData.order.order_number} created successfully!`);
-                
-                // Clear selected items and refresh cart
+
+                // Clear selected items
                 setSelectedItems(new Set());
-                await fetchCartItems();
-                
+
                 // Navigate to orders page after a short delay
                 setTimeout(() => {
                     navigate('/orders');
@@ -287,13 +206,6 @@ function Cart() {
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
     };
 
-    // Format currency
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-KE', {
-            style: 'currency',
-            currency: 'KES'
-        }).format(amount || 0);
-    };
 
     return (
         <div className="cart-page">
@@ -504,16 +416,16 @@ function Cart() {
                                             <div className="item-quantity">
                                                 <button 
                                                     className="quantity-btn decrease"
-                                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                    disabled={item.quantity <= 1 || updating}
+                                                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                                    disabled={item.quantity <= 1 || loading}
                                                 >
                                                     −
                                                 </button>
                                                 <span className="quantity-value">{item.quantity}</span>
-                                                <button 
+                                                <button
                                                     className="quantity-btn increase"
-                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                    disabled={updating}
+                                                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                                    disabled={loading}
                                                 >
                                                     +
                                                 </button>
@@ -526,8 +438,8 @@ function Cart() {
                                             <div className="item-actions">
                                                 <button 
                                                     className="remove-btn"
-                                                    onClick={() => removeItem(item.id)}
-                                                    disabled={updating}
+                                                    onClick={() => handleRemoveItem(item.id)}
+                                                    disabled={loading}
                                                     title="Remove from cart"
                                                 >
                                                     🗑️
@@ -549,30 +461,30 @@ function Cart() {
                                                 Subtotal ({selectedItems.size} items):
                                             </span>
                                             <span className="summary-value">
-                                                {formatCurrency(getSubtotal())}
+                                                {formatCurrency(getSelectedTotals().subtotal)}
                                             </span>
                                         </div>
-                                        
+
                                         <div className="summary-row">
                                             <span className="summary-label">Tax (16% VAT):</span>
                                             <span className="summary-value">
-                                                {formatCurrency(getTax())}
+                                                {formatCurrency(getSelectedTotals().taxAmount)}
                                             </span>
                                         </div>
-                                        
+
                                         <div className="summary-row">
                                             <span className="summary-label">Shipping:</span>
                                             <span className="summary-value">
-                                                {getShipping() === 0 ? 'Free' : formatCurrency(getShipping())}
+                                                {getSelectedTotals().shippingFee === 0 ? 'Free' : formatCurrency(getSelectedTotals().shippingFee)}
                                             </span>
                                         </div>
-                                        
+
                                         <hr className="summary-divider" />
-                                        
+
                                         <div className="summary-row total">
                                             <span className="summary-label">Total:</span>
                                             <span className="summary-value total-amount">
-                                                {formatCurrency(getTotal())}
+                                                {formatCurrency(getSelectedTotals().total)}
                                             </span>
                                         </div>
                                     </div>

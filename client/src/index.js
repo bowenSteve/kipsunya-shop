@@ -4,6 +4,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { UserProvider } from './context/UserContext';
+import { CartProvider } from './context/CartContext';
 import routes from './routes';
 
 // Remove any Layout wrapper from here
@@ -12,7 +13,9 @@ const router = createBrowserRouter(routes);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <UserProvider>
-    <RouterProvider router={router} />
+    <CartProvider>
+      <RouterProvider router={router} />
+    </CartProvider>
   </UserProvider>
 );
 

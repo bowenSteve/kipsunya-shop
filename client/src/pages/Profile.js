@@ -6,28 +6,19 @@ import Footer from "../components/Footer";
 import API_BASE_URL from "../config";
 
 function Profile() {
-    const [isEditing, setIsEditing] = useState(false);
+    const [activeTab, setActiveTab] = useState('personal');
+    const [editingField, setEditingField] = useState(null);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [showAdvanced, setShowAdvanced] = useState(false);
     
     // Form data state
     const [formData, setFormData] = useState({
         first_name: '', last_name: '', email: '', phone: '', address: '', city: '', country: '',
         date_of_birth: '', bio: '', business_name: '', business_description: '', business_type: '',
-        tax_id: '', business_phone: '', business_email: '', business_address: '', website: '',
-        social_media: { facebook: '', twitter: '', instagram: '', linkedin: '' },
-        business_hours: {
-            monday: { open: '09:00', close: '17:00', closed: false },
-            tuesday: { open: '09:00', close: '17:00', closed: false },
-            wednesday: { open: '09:00', close: '17:00', closed: false },
-            thursday: { open: '09:00', close: '17:00', closed: false },
-            friday: { open: '09:00', close: '17:00', closed: false },
-            saturday: { open: '09:00', close: '17:00', closed: false },
-            sunday: { open: '', close: '', closed: true }
-        },
-        shipping_policy: '', return_policy: '', terms_conditions: ''
+        tax_id: '', business_phone: '', business_email: '', business_address: '', website: ''
     });
 
     const { isAuthenticated, user, logout, updateUserProfile, getAuthToken } = useUser();
@@ -48,19 +39,7 @@ function Profile() {
                 business_name: user.business_name || '', business_description: user.business_description || '',
                 business_type: user.business_type || '', tax_id: user.tax_id || '',
                 business_phone: user.business_phone || '', business_email: user.business_email || '',
-                business_address: user.business_address || '', website: user.website || '',
-                social_media: user.social_media || { facebook: '', twitter: '', instagram: '', linkedin: '' },
-                business_hours: user.business_hours || {
-                    monday: { open: '09:00', close: '17:00', closed: false },
-                    tuesday: { open: '09:00', close: '17:00', closed: false },
-                    wednesday: { open: '09:00', close: '17:00', closed: false },
-                    thursday: { open: '09:00', close: '17:00', closed: false },
-                    friday: { open: '09:00', close: '17:00', closed: false },
-                    saturday: { open: '09:00', close: '17:00', closed: false },
-                    sunday: { open: '', close: '', closed: true }
-                },
-                shipping_policy: user.shipping_policy || '', return_policy: user.return_policy || '',
-                terms_conditions: user.terms_conditions || ''
+                business_address: user.business_address || '', website: user.website || ''
             });
         }
     }, [isAuthenticated, navigate, user]);
@@ -85,59 +64,38 @@ function Profile() {
         return () => document.removeEventListener('click', handleClickOutside);
     }, [showProfileMenu]);
 
-    // Handle form input changes (including nested objects)
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        if (name.includes('.')) {
-            const keys = name.split('.');
-            setFormData(prev => {
-                const newData = { ...prev };
-                let current = newData;
-                for (let i = 0; i < keys.length - 1; i++) {
-                    if (!current[keys[i]]) current[keys[i]] = {};
-                    current = current[keys[i]];
-                }
-                current[keys[keys.length - 1]] = type === 'checkbox' ? checked : value;
-                return newData;
-            });
-        } else {
-            setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-        }
-    };
+    
+    // Inline editing functions
+    const handleEditField = (fieldName) => setEditingField(fieldName);
+    const handleCancelEdit = () => setEditingField(null);
 
-    // Handle form submission to update profile
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleFieldUpdate = async (fieldName, value) => {
         setUpdating(true);
         setError(null);
-        setSuccess(null);
         try {
             const token = getAuthToken();
             const response = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ [fieldName]: value })
             });
+
             if (response.ok) {
                 const updatedUser = await response.json();
                 await updateUserProfile(updatedUser);
-                setSuccess('Profile updated successfully!');
-                setIsEditing(false);
+                setFormData(prev => ({ ...prev, [fieldName]: value }));
+                setEditingField(null);
+                setSuccess(`${fieldName.replace('_', ' ')} updated successfully!`);
                 setTimeout(() => setSuccess(null), 3000);
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update profile');
+                throw new Error('Failed to update field');
             }
         } catch (error) {
-            console.error('Error updating profile:', error);
             setError(error.message);
         } finally {
             setUpdating(false);
         }
     };
-    
-    // Toggle between edit and view mode
-    const handleEditToggle = () => setIsEditing(!isEditing);
 
     // Helper functions for formatting and display
     const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString() : null;
@@ -149,12 +107,109 @@ function Profile() {
         return 'Your Profile';
     };
 
-    // Helper component for displaying data or a placeholder text
-    const DisplayField = ({ value, placeholder = 'Not provided' }) => (
-        <div className="form-display">
-            {value ? value : <span className="placeholder-text">{placeholder}</span>}
-        </div>
-    );
+    // Enhanced display component with inline editing
+    const EditableField = ({ label, fieldName, value, type = 'text', placeholder = 'Not provided', options = null }) => {
+        const isEditing = editingField === fieldName;
+        const [tempValue, setTempValue] = useState(value || '');
+
+        useEffect(() => {
+            setTempValue(value || '');
+        }, [value]);
+
+        const handleSave = () => {
+            if (tempValue !== value) {
+                handleFieldUpdate(fieldName, tempValue);
+            } else {
+                setEditingField(null);
+            }
+        };
+
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter' && type !== 'textarea') {
+                handleSave();
+            } else if (e.key === 'Escape') {
+                setTempValue(value || '');
+                handleCancelEdit();
+            }
+        };
+
+        return (
+            <div className="editable-field">
+                <div className="field-header">
+                    <label className="field-label">{label}</label>
+                    {!isEditing && (
+                        <button
+                            className="edit-field-btn"
+                            onClick={() => handleEditField(fieldName)}
+                            title={`Edit ${label}`}
+                        >
+                            ✏️
+                        </button>
+                    )}
+                </div>
+                <div className="field-content">
+                    {isEditing ? (
+                        <div className="field-edit-container">
+                            {type === 'select' ? (
+                                <select
+                                    value={tempValue}
+                                    onChange={(e) => setTempValue(e.target.value)}
+                                    className="field-edit-input"
+                                    autoFocus
+                                >
+                                    <option value="">Select {label.toLowerCase()}</option>
+                                    {options?.map(option => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            ) : type === 'textarea' ? (
+                                <textarea
+                                    value={tempValue}
+                                    onChange={(e) => setTempValue(e.target.value)}
+                                    onKeyDown={handleKeyPress}
+                                    className="field-edit-input field-edit-textarea"
+                                    rows="3"
+                                    autoFocus
+                                />
+                            ) : (
+                                <input
+                                    type={type}
+                                    value={tempValue}
+                                    onChange={(e) => setTempValue(e.target.value)}
+                                    onKeyDown={handleKeyPress}
+                                    className="field-edit-input"
+                                    autoFocus
+                                />
+                            )}
+                            <div className="field-edit-actions">
+                                <button
+                                    className="field-save-btn"
+                                    onClick={handleSave}
+                                    disabled={updating}
+                                >
+                                    {updating ? '💾' : '✅'}
+                                </button>
+                                <button
+                                    className="field-cancel-btn"
+                                    onClick={handleCancelEdit}
+                                >
+                                    ❌
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="field-display">
+                            {value ? (
+                                <span className="field-value">{value}</span>
+                            ) : (
+                                <span className="field-placeholder">{placeholder}</span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     // Loading state
     if (!isAuthenticated || !user) {
@@ -210,164 +265,307 @@ function Profile() {
             </header>
 
             <main className="profile-main">
-                <div className="profile-container">
-                    <div className="profile-card profile-header-section">
-                        <div className="profile-avatar-large">{getUserInitials()}</div>
-                        <div className="profile-header-info">
-                            <h1 className="profile-title">{getDisplayName()}
-                                {user.role === 'vendor' && user.business_name && user.first_name && (
-                                    <span className="business-subtitle">{user.first_name} {user.last_name}</span>
-                                )}
-                            </h1>
-                            <p className="profile-email-display">{user.email}</p>
-                            <div className="profile-badges">
-                                <span className="profile-role-badge">{user.role || 'Customer'}</span>
-                                {user.role === 'vendor' && user.business_type && (
-                                    <span className="business-type-badge">{user.business_type}</span>
-                                )}
+                {success && <div className="message success-message">✅ {success}</div>}
+                {error && <div className="message error-message">❌ {error}</div>}
+
+                <div className="profile-layout">
+                    {/* Sidebar */}
+                    <aside className="profile-sidebar">
+                        <div className="profile-summary">
+                            <div className="profile-avatar-large">{getUserInitials()}</div>
+                            <div className="profile-summary-info">
+                                <h2 className="profile-name">{getDisplayName()}</h2>
+                                <p className="profile-email">{user.email}</p>
+                                <div className="profile-badges">
+                                    <span className="profile-role-badge">{user.role || 'Customer'}</span>
+                                    {user.role === 'vendor' && user.business_type && (
+                                        <span className="business-type-badge">{user.business_type}</span>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                        <div className="profile-actions">
-                            <button className={`edit-button ${isEditing ? 'cancel' : 'edit'}`} onClick={handleEditToggle} disabled={updating}>
-                                {isEditing ? '✕ Cancel' : '✏️ Edit Profile'}
+
+                        <nav className="profile-nav">
+                            <button
+                                className={`nav-tab ${activeTab === 'personal' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('personal')}
+                            >
+                                👤 Personal Info
                             </button>
-                            {user.role === 'customer' && (
-                                <button className="upgrade-vendor-button" onClick={handleVendorUpgrade}>
-                                    🏪 Become a Vendor
+                            {user.role === 'vendor' && (
+                                <button
+                                    className={`nav-tab ${activeTab === 'business' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('business')}
+                                >
+                                    🏪 Business Info
                                 </button>
                             )}
-                        </div>
-                    </div>
+                            <button
+                                className={`nav-tab ${activeTab === 'account' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('account')}
+                            >
+                                ⚙️ Account Settings
+                            </button>
+                        </nav>
 
-                    {success && <div className="message success-message">✅ {success}</div>}
-                    {error && <div className="message error-message">❌ {error}</div>}
-
-                    {user.role === 'customer' && !isEditing && (
-                        <div className="upgrade-card">
-                            <div className="upgrade-icon">🏪</div>
-                            <div className="upgrade-content">
-                                <h3>Start Selling on Kipsunya Biz</h3>
-                                <p>Join thousands of vendors and start selling your products today. Get access to our powerful vendor dashboard, analytics, and reach customers across Kenya.</p>
-                                <div className="upgrade-features">
-                                    <span className="feature">📊 Sales Analytics</span>
-                                    <span className="feature">📦 Order Management</span>
-                                    <span className="feature">💰 Secure Payments</span>
-                                    <span className="feature">🚚 Shipping Tools</span>
-                                </div>
-                            </div>
-                            <div className="upgrade-action">
-                                <button className="upgrade-cta-button" onClick={handleVendorUpgrade}>
-                                    🚀 Upgrade Now <span className="upgrade-arrow">→</span>
-                                </button>
-                                <p className="upgrade-note">Free to start • 15% commission</p>
-                            </div>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit}>
-                        {/* PERSONAL INFORMATION CARD */}
-                        <div className="profile-card form-section">
-                            <h3 className="section-title">Personal Information</h3>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="first_name">First Name</label>
-                                    {isEditing ? <input type="text" id="first_name" name="first_name" value={formData.first_name} onChange={handleInputChange} className="form-input" placeholder="Enter first name" /> : <DisplayField value={formData.first_name} />}
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="last_name">Last Name</label>
-                                    {isEditing ? <input type="text" id="last_name" name="last_name" value={formData.last_name} onChange={handleInputChange} className="form-input" placeholder="Enter last name" /> : <DisplayField value={formData.last_name} />}
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="email">Email Address</label>
-                                    {isEditing ? <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} className="form-input" placeholder="Enter email address" required /> : <DisplayField value={formData.email} />}
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="phone">Phone Number</label>
-                                    {isEditing ? <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} className="form-input" placeholder="Enter phone number" /> : <DisplayField value={formData.phone} />}
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="date_of_birth">Date of Birth</label>
-                                {isEditing ? <input type="date" id="date_of_birth" name="date_of_birth" value={formData.date_of_birth} onChange={handleInputChange} className="form-input" /> : <DisplayField value={formatDate(formData.date_of_birth)} />}
-                            </div>
-                        </div>
-
-                        {/* LOCATION CARD */}
-                        <div className="profile-card form-section">
-                             <h3 className="section-title">{user.role === 'vendor' ? 'Personal Address' : 'Location'}</h3>
-                             <div className="form-group">
-                                <label htmlFor="address">Address</label>
-                                {isEditing ? <textarea id="address" name="address" value={formData.address} onChange={handleInputChange} className="form-textarea" placeholder="Enter your address" rows="3" /> : <DisplayField value={formData.address} />}
-                             </div>
-                             <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="city">City</label>
-                                    {isEditing ? <input type="text" id="city" name="city" value={formData.city} onChange={handleInputChange} className="form-input" placeholder="Enter city" /> : <DisplayField value={formData.city} />}
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="country">Country</label>
-                                    {isEditing ? <input type="text" id="country" name="country" value={formData.country} onChange={handleInputChange} className="form-input" placeholder="Enter country" /> : <DisplayField value={formData.country} />}
-                                </div>
-                             </div>
-                        </div>
-                        
-                        {/* VENDOR INFORMATION CARD */}
-                        {user.role === 'vendor' && (
-                            <div className="profile-card form-section">
-                                <h3 className="section-title">Business Information</h3>
-                                <div className="form-group">
-                                    <label htmlFor="business_name">Business Name</label>
-                                    {isEditing ? <input type="text" id="business_name" name="business_name" value={formData.business_name} onChange={handleInputChange} className="form-input" placeholder="Enter business name"/> : <DisplayField value={formData.business_name}/>}
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="business_type">Business Type</label>
-                                        {isEditing ? (
-                                            <select id="business_type" name="business_type" value={formData.business_type} onChange={handleInputChange} className="form-input">
-                                                <option value="">Select business type</option>
-                                                <option value="Retail">Retail</option>
-                                                <option value="Service">Service</option>
-                                                <option value="Wholesale">Wholesale</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        ) : <DisplayField value={formData.business_type}/>}
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="tax_id">Tax ID</label>
-                                        {isEditing ? <input type="text" id="tax_id" name="tax_id" value={formData.tax_id} onChange={handleInputChange} className="form-input" placeholder="Enter tax ID"/> : <DisplayField value={formData.tax_id ? '••••••••' : null} placeholder="Not provided"/>}
-                                    </div>
+                        {user.role === 'customer' && (
+                            <div className="upgrade-banner">
+                                <div className="upgrade-banner-content">
+                                    <h4>🏪 Become a Vendor</h4>
+                                    <p>Start selling on Kipsunya Biz today</p>
+                                    <button className="upgrade-banner-btn" onClick={handleVendorUpgrade}>
+                                        Get Started
+                                    </button>
                                 </div>
                             </div>
                         )}
+                    </aside>
 
-                        {isEditing && (
-                            <div className="form-actions">
-                                <button type="submit" className="save-button" disabled={updating}>
-                                    {updating ? (<><div className="button-spinner"></div>Saving...</>) : 'Save Changes'}
-                                </button>
-                            </div>
-                        )}
-                    </form>
-                    
-                    {!isEditing && (
-                        <div className="profile-card account-info-section">
-                            <h3 className="section-title">Account Information</h3>
-                            <div className="account-info-grid">
-                                <div className="info-item"><span className="info-label">Member since:</span><span className="info-value"><DisplayField value={formatDate(user.date_joined)} placeholder="Unknown" /></span></div>
-                                <div className="info-item"><span className="info-label">Last login:</span><span className="info-value"><DisplayField value={formatDate(user.last_login)} placeholder="Unknown" /></span></div>
-                                <div className="info-item"><span className="info-label">Account status:</span><span className="info-value"><span className="status-badge active">Active</span></span></div>
-                                {user.role === 'vendor' && (
-                                    <>
-                                        <div className="info-item"><span className="info-label">Business verified:</span><span className="info-value"><span className={`status-badge ${user.business_verified ? 'active' : 'pending'}`}>{user.business_verified ? 'Verified' : 'Pending'}</span></span></div>
-                                        <div className="info-item"><span className="info-label">Total products:</span><span className="info-value">{user.product_count || '0'}</span></div>
-                                        <div className="info-item"><span className="info-label">Total orders:</span><span className="info-value">{user.order_count || '0'}</span></div>
-                                    </>
+                    {/* Main Content */}
+                    <div className="profile-content">
+
+                        {/* Personal Information Tab */}
+                        {activeTab === 'personal' && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2>Personal Information</h2>
+                                    <p>Manage your personal details and contact information.</p>
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Basic Information</h3>
+                                    <div className="field-grid">
+                                        <EditableField
+                                            label="First Name"
+                                            fieldName="first_name"
+                                            value={formData.first_name}
+                                            placeholder="Enter your first name"
+                                        />
+                                        <EditableField
+                                            label="Last Name"
+                                            fieldName="last_name"
+                                            value={formData.last_name}
+                                            placeholder="Enter your last name"
+                                        />
+                                    </div>
+                                    <div className="field-grid">
+                                        <EditableField
+                                            label="Email Address"
+                                            fieldName="email"
+                                            value={formData.email}
+                                            type="email"
+                                            placeholder="Enter your email"
+                                        />
+                                        <EditableField
+                                            label="Phone Number"
+                                            fieldName="phone"
+                                            value={formData.phone}
+                                            type="tel"
+                                            placeholder="Enter your phone number"
+                                        />
+                                    </div>
+                                    <EditableField
+                                        label="Date of Birth"
+                                        fieldName="date_of_birth"
+                                        value={formData.date_of_birth}
+                                        type="date"
+                                        placeholder="Select your date of birth"
+                                    />
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Location</h3>
+                                    <EditableField
+                                        label="Address"
+                                        fieldName="address"
+                                        value={formData.address}
+                                        type="textarea"
+                                        placeholder="Enter your address"
+                                    />
+                                    <div className="field-grid">
+                                        <EditableField
+                                            label="City"
+                                            fieldName="city"
+                                            value={formData.city}
+                                            placeholder="Enter your city"
+                                        />
+                                        <EditableField
+                                            label="Country"
+                                            fieldName="country"
+                                            value={formData.country}
+                                            placeholder="Enter your country"
+                                        />
+                                    </div>
+                                </div>
+
+                                {showAdvanced && (
+                                    <div className="profile-section">
+                                        <h3>Additional Information</h3>
+                                        <EditableField
+                                            label="Bio"
+                                            fieldName="bio"
+                                            value={formData.bio}
+                                            type="textarea"
+                                            placeholder="Tell us about yourself"
+                                        />
+                                    </div>
                                 )}
+
+                                <button
+                                    className="show-advanced-btn"
+                                    onClick={() => setShowAdvanced(!showAdvanced)}
+                                >
+                                    {showAdvanced ? '🔼 Show Less' : '🔽 Show More'}
+                                </button>
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {/* Business Information Tab */}
+                        {activeTab === 'business' && user.role === 'vendor' && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2>Business Information</h2>
+                                    <p>Manage your business details and settings.</p>
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Business Details</h3>
+                                    <EditableField
+                                        label="Business Name"
+                                        fieldName="business_name"
+                                        value={formData.business_name}
+                                        placeholder="Enter your business name"
+                                    />
+                                    <div className="field-grid">
+                                        <EditableField
+                                            label="Business Type"
+                                            fieldName="business_type"
+                                            value={formData.business_type}
+                                            type="select"
+                                            options={['Retail', 'Service', 'Wholesale', 'Manufacturing', 'Other']}
+                                            placeholder="Select business type"
+                                        />
+                                        <EditableField
+                                            label="Tax ID"
+                                            fieldName="tax_id"
+                                            value={formData.tax_id}
+                                            placeholder="Enter tax identification number"
+                                        />
+                                    </div>
+                                    <EditableField
+                                        label="Business Description"
+                                        fieldName="business_description"
+                                        value={formData.business_description}
+                                        type="textarea"
+                                        placeholder="Describe your business"
+                                    />
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Contact Information</h3>
+                                    <div className="field-grid">
+                                        <EditableField
+                                            label="Business Phone"
+                                            fieldName="business_phone"
+                                            value={formData.business_phone}
+                                            type="tel"
+                                            placeholder="Enter business phone"
+                                        />
+                                        <EditableField
+                                            label="Business Email"
+                                            fieldName="business_email"
+                                            value={formData.business_email}
+                                            type="email"
+                                            placeholder="Enter business email"
+                                        />
+                                    </div>
+                                    <EditableField
+                                        label="Business Address"
+                                        fieldName="business_address"
+                                        value={formData.business_address}
+                                        type="textarea"
+                                        placeholder="Enter business address"
+                                    />
+                                    <EditableField
+                                        label="Website"
+                                        fieldName="website"
+                                        value={formData.website}
+                                        type="url"
+                                        placeholder="Enter website URL"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Account Settings Tab */}
+                        {activeTab === 'account' && (
+                            <div className="tab-content">
+                                <div className="content-header">
+                                    <h2>Account Settings</h2>
+                                    <p>View your account information and manage settings.</p>
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Account Information</h3>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <span className="info-label">Member since</span>
+                                            <span className="info-value">{formatDate(user.date_joined) || 'Unknown'}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Last login</span>
+                                            <span className="info-value">{formatDate(user.last_login) || 'Unknown'}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Account status</span>
+                                            <span className="status-badge active">Active</span>
+                                        </div>
+                                        {user.role === 'vendor' && (
+                                            <>
+                                                <div className="info-item">
+                                                    <span className="info-label">Business verified</span>
+                                                    <span className={`status-badge ${user.business_verified ? 'active' : 'pending'}`}>
+                                                        {user.business_verified ? 'Verified' : 'Pending'}
+                                                    </span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Total products</span>
+                                                    <span className="info-value">{user.product_count || '0'}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Total orders</span>
+                                                    <span className="info-value">{user.order_count || '0'}</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="profile-section">
+                                    <h3>Quick Actions</h3>
+                                    <div className="quick-actions">
+                                        <button className="action-btn secondary">
+                                            🔐 Change Password
+                                        </button>
+                                        <button className="action-btn secondary">
+                                            📧 Update Email
+                                        </button>
+                                        <button className="action-btn secondary">
+                                            📱 Two-Factor Auth
+                                        </button>
+                                        <button className="action-btn secondary">
+                                            📄 Download Data
+                                        </button>
+                                        {user.role === 'customer' && (
+                                            <button className="action-btn primary" onClick={handleVendorUpgrade}>
+                                                🏪 Become a Vendor
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
             <Footer />

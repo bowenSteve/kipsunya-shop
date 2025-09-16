@@ -156,22 +156,22 @@ WSGI_APPLICATION = 'server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-import dj_database_url
-import os
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://kipsunya_biz_user:FVTwweC1IwaDcFF1lybkuTYGr7LDbD7V@dpg-d1togoer433s73dvmbeg-a.oregon-postgres.render.com/kipsunya_biz',
-        conn_max_age=600,  # keeps DB connections open for performance
-        ssl_require=True   # force SSL, required by Render DBs
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+# import dj_database_url
+# import os
+
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://kipsunya_biz_user:FVTwweC1IwaDcFF1lybkuTYGr7LDbD7V@dpg-d1togoer433s73dvmbeg-a.oregon-postgres.render.com/kipsunya_biz',
+#         conn_max_age=600,  # keeps DB connections open for performance
+#         ssl_require=True   # force SSL, required by Render DBs
+#     )
+# }
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

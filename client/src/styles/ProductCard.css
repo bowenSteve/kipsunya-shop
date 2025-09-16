@@ -49,6 +49,113 @@
 .product-card-breadcrumb span { margin: 0 0.5rem; color: var(--pc-text-muted); }
 .product-card-breadcrumb .product-card-current { color: var(--pc-text-primary); font-weight: 500; }
 
+/* --- Messages --- */
+.product-card-message {
+  padding: 0.875rem 1rem;
+  border-radius: var(--pc-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.product-card-message.success {
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.product-card-message.error {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Cart Status --- */
+.product-card-cart-status {
+  background: var(--pc-primary-light);
+  color: var(--pc-primary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--pc-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* --- Quantity Controls --- */
+.product-card-quantity-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--pc-border);
+  border-radius: var(--pc-radius);
+  overflow: hidden;
+  background: var(--pc-background);
+}
+
+.quantity-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--pc-background);
+  border: none;
+  color: var(--pc-text-secondary);
+  font-size: 1.125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--pc-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-btn:hover:not(:disabled) {
+  background: var(--pc-background-light);
+  color: var(--pc-primary);
+}
+
+.quantity-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity-input {
+  width: 60px;
+  height: 40px;
+  border: none;
+  border-left: 1px solid var(--pc-border-light);
+  border-right: 1px solid var(--pc-border-light);
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pc-text-primary);
+  outline: none;
+}
+
+.quantity-input:focus {
+  background: var(--pc-background-light);
+}
+
+.quantity-info {
+  margin-top: 0.5rem;
+}
+
+.quantity-total {
+  font-size: 0.875rem;
+  color: var(--pc-text-secondary);
+  font-weight: 500;
+}
+
 /* --- Main Content Layout --- */
 .product-card-main {
   display: grid;

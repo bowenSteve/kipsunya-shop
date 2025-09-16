@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { useCart } from "../context/CartContext";
 import "../styles/ProductCard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -14,13 +15,15 @@ function ProductCard() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [addingToCart, setAddingToCart] = useState(false);
     const [quantity, setQuantity] = useState(1);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // We still need user context for purchase actions
-    const { isAuthenticated, getAuthToken } = useUser();
+    // Contexts
+    const { isAuthenticated } = useUser();
+    const { addToCart, loading: cartLoading, getProductQuantityInCart, isInCart } = useCart();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -70,26 +73,18 @@ function ProductCard() {
             return;
         }
 
-        try {
-            setAddingToCart(true);
-            const token = getAuthToken();
-            const response = await fetch(`${API_BASE_URL}/api/cart/add/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ product_id: product.id, quantity: quantity })
-            });
-
-            if (response.ok) {
-                alert('Product added to cart successfully!');
-            } else {
-                throw new Error('Failed to add to cart');
+        const result = await addToCart(product.id, quantity, {
+            onSuccess: (message) => {
+                setSuccessMessage(message);
+                setErrorMessage(null);
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+            onError: (error) => {
+                setErrorMessage(error);
+                setSuccessMessage(null);
+                setTimeout(() => setErrorMessage(null), 5000);
             }
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            alert('Failed to add product to cart. Please try again.');
-        } finally {
-            setAddingToCart(false);
-        }
+        });
     };
 
     const handleBuyNow = () => {
@@ -171,20 +166,82 @@ function ProductCard() {
                             {product.description.split('\n')[0]}
                         </div>
 
+                        {/* Success/Error Messages */}
+                        {successMessage && (
+                            <div className="product-card-message success">
+                                ✅ {successMessage}
+                            </div>
+                        )}
+                        {errorMessage && (
+                            <div className="product-card-message error">
+                                ❌ {errorMessage}
+                            </div>
+                        )}
+
+                        {/* Cart Status */}
+                        {isAuthenticated && isInCart(product.id) && (
+                            <div className="product-card-cart-status">
+                                🛒 {getProductQuantityInCart(product.id)} in cart
+                            </div>
+                        )}
+
                         {product.in_stock ? (
                             <div className="product-card-purchase-section">
                                 <div className="product-card-quantity-selector">
                                     <label htmlFor="quantity">Quantity</label>
                                     <div className="product-card-quantity-controls">
-                                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>-</button>
-                                        <input id="quantity" type="text" value={quantity} readOnly />
-                                        <button onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))} disabled={quantity >= product.stock_quantity}>+</button>
+                                        <button
+                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            disabled={quantity <= 1}
+                                            className="quantity-btn decrease"
+                                        >
+                                            −
+                                        </button>
+                                        <input
+                                            id="quantity"
+                                            type="number"
+                                            value={quantity}
+                                            onChange={(e) => {
+                                                const value = Math.max(1, Math.min(product.stock_quantity, parseInt(e.target.value) || 1));
+                                                setQuantity(value);
+                                            }}
+                                            min="1"
+                                            max={product.stock_quantity}
+                                            className="quantity-input"
+                                        />
+                                        <button
+                                            onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
+                                            disabled={quantity >= product.stock_quantity}
+                                            className="quantity-btn increase"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                    <div className="quantity-info">
+                                        {quantity > 1 && (
+                                            <span className="quantity-total">
+                                                Total: {formatPrice(product.price * quantity)}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="product-card-action-buttons">
-                                    <button className="product-card-add-to-cart" onClick={handleAddToCart} disabled={addingToCart}>
-                                        {addingToCart ? <div className="product-card-button-spinner"></div> : <AddToCartIcon />}
-                                        {addingToCart ? 'Adding...' : 'Add to Cart'}
+                                    <button
+                                        className="product-card-add-to-cart"
+                                        onClick={handleAddToCart}
+                                        disabled={cartLoading}
+                                    >
+                                        {cartLoading ? (
+                                            <>
+                                                <div className="product-card-button-spinner"></div>
+                                                Adding...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <AddToCartIcon />
+                                                Add to Cart
+                                            </>
+                                        )}
                                     </button>
                                     <button className="product-card-buy-now" onClick={handleBuyNow}>
                                         <BuyNowIcon />
