@@ -1,4 +1,19 @@
-# server/seed_with_vendors.py
+# server/seed.py - Marketplace seed data with vendor tiers and locations
+"""
+This seed script creates:
+- 3 vendor users with different tiers (featured, premium, basic)
+- Each vendor has location info (district, neighborhood) and WhatsApp contact
+- 3 product categories (Smartphones, Drinks, Kitchen Ware)
+- 14 products total, all assigned to relevant vendors
+- Products use ImageField (no image_url)
+
+Vendor Tiers:
+- Featured (Mwangi Electronics - Nairobi): Unlimited products
+- Premium (Wanjiku Beverages - Nakuru): 150 products limit
+- Basic (Kiprotich Kitchen - Eldoret): 50 products limit
+
+Run with: python manage.py shell < seed.py
+"""
 import os
 import django
 
@@ -12,8 +27,9 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 
 print('Starting to seed products with vendors...')
+print('='*60)
 
-# First, create vendor users
+# First, create vendor users with marketplace fields
 vendors_data = [
     {
         'username': 'vendor_electronics',
@@ -23,9 +39,13 @@ vendors_data = [
         'profile': {
             'role': 'vendor',
             'phone': '+254712345678',
+            'whatsapp': '+254712345678',
             'business_name': 'Mwangi Electronics Store',
             'business_type': 'Electronics & Gadgets',
-            'business_verified': True
+            'business_verified': True,
+            'vendor_tier': 'featured',
+            'district': 'Nairobi',
+            'neighborhood': 'Westlands, Nairobi'
         }
     },
     {
@@ -36,9 +56,13 @@ vendors_data = [
         'profile': {
             'role': 'vendor',
             'phone': '+254723456789',
+            'whatsapp': '+254723456789',
             'business_name': 'Wanjiku Premium Beverages',
             'business_type': 'Alcoholic Beverages',
-            'business_verified': True
+            'business_verified': True,
+            'vendor_tier': 'premium',
+            'district': 'Nakuru',
+            'neighborhood': 'Town Center, Nakuru'
         }
     },
     {
@@ -49,9 +73,13 @@ vendors_data = [
         'profile': {
             'role': 'vendor',
             'phone': '+254734567890',
+            'whatsapp': '+254734567890',
             'business_name': 'Kiprotich Kitchen Supplies',
             'business_type': 'Kitchen & Home Appliances',
-            'business_verified': True
+            'business_verified': True,
+            'vendor_tier': 'basic',
+            'district': 'Eldoret',
+            'neighborhood': 'Kapsoya, Eldoret'
         }
     }
 ]
@@ -139,7 +167,6 @@ Key specs: 162g weight, 7.5mm thickness, IP65 dust/water resistance, Nano-SIM su
         'price': Decimal('51999.00'),
         'stock_quantity': 15,
         'in_stock': True,
-        'image_url': 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y400-pro-1.jpg',
         'featured': True,
         'is_active': True,
     },
@@ -156,7 +183,6 @@ Expected release: July 2025. Dimensions: 161.2 x 74.7 x 7.8 mm, Weight: 185g.'''
         'price': Decimal('38870.00'),
         'stock_quantity': 8,
         'in_stock': True,
-        'image_url': 'https://fdn2.gsmarena.com/vv/pics/motorola/motorola-moto-g86-1.jpg',
         'featured': False,
         'is_active': True,
     },
@@ -174,7 +200,6 @@ Build: Glass front (Gorilla Glass 7), plastic frame, plastic back. Weight: 179g.
         'price': Decimal('53170.00'),
         'stock_quantity': 12,
         'in_stock': True,
-        'image_url': 'https://fdn2.gsmarena.com/vv/pics/motorola/motorola-edge-60-1.jpg',
         'featured': True,
         'is_active': True,
     },
@@ -193,7 +218,6 @@ Features water-repellent design and stereo speakers for enhanced multimedia expe
         'price': Decimal('25999.00'),
         'stock_quantity': 25,
         'in_stock': True,
-        'image_url': 'https://fdn2.gsmarena.com/vv/pics/motorola/motorola-moto-g45-5g-1.jpg',
         'featured': False,
         'is_active': True,
     },
@@ -211,7 +235,6 @@ Premium London Dry Gin with distinctive juniper flavor and smooth finish. Perfec
         'price': Decimal('3200.00'),
         'stock_quantity': 20,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/17/873585/1.jpg?8695',
         'featured': True,
         'is_active': True,
     },
@@ -227,7 +250,6 @@ This expression showcases the classic Speyside character with its elegant balanc
         'price': Decimal('8500.00'),
         'stock_quantity': 12,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/45/449969/1.jpg?2169',
         'featured': True,
         'is_active': True,
     },
@@ -244,7 +266,6 @@ Ideal for mixing cocktails or enjoying neat with friends and family.''',
         'price': Decimal('28000.00'),
         'stock_quantity': 6,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/57/283585/1.jpg?4526',
         'featured': False,
         'is_active': True,
     },
@@ -261,7 +282,6 @@ The 750ml bottle is ideal for home consumption and makes an excellent gift for w
         'price': Decimal('2800.00'),
         'stock_quantity': 18,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/02/193585/1.jpg?9231',
         'featured': False,
         'is_active': True,
     },
@@ -278,7 +298,6 @@ The 750ml bottle is perfect for dinner parties, romantic evenings, or adding to 
         'price': Decimal('1800.00'),
         'stock_quantity': 24,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/80/283585/1.jpg?9069',
         'featured': False,
         'is_active': True,
     },
@@ -297,7 +316,6 @@ Easy to clean and maintain, these sufurias are perfect for everyday cooking need
         'price': Decimal('2500.00'),
         'stock_quantity': 30,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/96/7343842/1.jpg?0140',
         'featured': True,
         'is_active': True,
     },
@@ -315,7 +333,6 @@ For first use, it is recommended to clean with hot water to remove any manufactu
         'price': Decimal('1200.00'),
         'stock_quantity': 45,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/01/538275/1.jpg?7415',
         'featured': False,
         'is_active': True,
     },
@@ -333,7 +350,6 @@ Beat the heat with our premium silicone ice cube maker that's both practical and
         'price': Decimal('800.00'),
         'stock_quantity': 60,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/97/8119201/1.jpg?7783',
         'featured': False,
         'is_active': True,
     },
@@ -352,7 +368,6 @@ Perfect for oranges, watermelons, lemons, and other citrus fruits. Hand wash onl
         'price': Decimal('3500.00'),
         'stock_quantity': 15,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/41/8639882/1.jpg?9629',
         'featured': True,
         'is_active': True,
     },
@@ -372,7 +387,6 @@ Multi-purpose functionality: chop garlic, onions, peppers, parsley, ginger, pean
         'price': Decimal('4200.00'),
         'stock_quantity': 12,
         'in_stock': True,
-        'image_url': 'https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/12/5588703/1.jpg?3118',
         'featured': True,
         'is_active': True,
     },

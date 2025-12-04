@@ -20,47 +20,51 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
-    """Product model for e-commerce items"""
-    
+    """Product model for marketplace"""
+
     # Basic product information
     name = models.CharField(max_length=200)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    
-    # ADD VENDOR FIELD - with null=True initially for safe migration
+
+    # Vendor field
     vendor = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
+        User,
+        on_delete=models.CASCADE,
         related_name='products',
         help_text="The vendor/seller of this product",
-        null=True,  # Allow null initially for existing products
-        blank=True  # Allow blank in admin forms initially
+        null=True,
+        blank=True
     )
-    
+
     # Pricing
     price = models.DecimalField(
-        max_digits=10, 
+        max_digits=10,
         decimal_places=2,
         validators=[MinValueValidator(Decimal('0.01'))]
     )
-    
+
     # Stock management
     in_stock = models.BooleanField(default=True)
     stock_quantity = models.PositiveIntegerField(default=0)
-    
-    # Images
-    image_url = models.URLField(max_length=500, blank=True, null=True)
-    
+
+    # Images - Using ImageField for local upload
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+
     # SEO and organization
     slug = models.SlugField(max_length=200, unique=True)
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    # Additional fields for e-commerce
+
+    # Additional fields
     is_active = models.BooleanField(default=True)
     featured = models.BooleanField(default=False)
+
+    # Analytics fields
+    view_count = models.PositiveIntegerField(default=0)
+    contact_reveal_count = models.PositiveIntegerField(default=0)
     
     class Meta:
         ordering = ['-created_at']

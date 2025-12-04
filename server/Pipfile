@@ -15,7 +15,6 @@ psycopg2-binary = "*"
 gunicorn = "*"
 dj-database-url = "*"
 django-extensions = "*"
-pandas = "*"
 
 [dev-packages]
 

@@ -7,78 +7,66 @@ from datetime import timedelta
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser # This is crucial for security
+from rest_framework.permissions import IsAdminUser
 
-# Import your models
-from orders.models import Order
-from authentication.models import User # Assuming your custom user model is here
+# Import models
+from django.contrib.auth.models import User
 from products.models import Product
+from authentication.models import UserProfile
 
 class DashboardStatsView(APIView):
     """
-    Provides statistics for the admin dashboard.
+    Provides statistics for the admin dashboard - updated for marketplace model.
     Only accessible by admin users.
     """
-    permission_classes = [IsAdminUser] # Ensures only admins can access this view
+    permission_classes = [IsAdminUser]
 
     def get(self, request, *args, **kwargs):
         # 1. KPI Data
-        total_sales = Order.objects.filter(status='Delivered').aggregate(total=Sum('total_price'))['total'] or 0
-        total_orders = Order.objects.count()
-        total_customers = User.objects.filter(role='customer').count()
-        
-        # New orders in the last 30 days
+        total_products = Product.objects.count()
+        active_products = Product.objects.filter(is_active=True).count()
+        total_vendors = User.objects.filter(profile__role='vendor').count()
+        total_customers = User.objects.filter(profile__role='customer').count()
+
+        # Product views and contact reveals in the last 30 days
         thirty_days_ago = timezone.now() - timedelta(days=30)
-        new_orders = Order.objects.filter(created_at__gte=thirty_days_ago).count()
+        recent_products = Product.objects.filter(created_at__gte=thirty_days_ago)
+        total_views_30d = recent_products.aggregate(total=Sum('view_count'))['total'] or 0
+        total_contacts_30d = recent_products.aggregate(total=Sum('contact_reveal_count'))['total'] or 0
 
-        # 2. Sales Chart Data (last 6 months)
-        six_months_ago = timezone.now() - timedelta(days=180)
-        sales_by_month = Order.objects.filter(
-            created_at__gte=six_months_ago,
-            status='Delivered'
-        ).annotate(
-            month=TruncMonth('created_at')
-        ).values('month').annotate(
-            total=Sum('total_price')
-        ).order_by('month')
+        kpi_data = {
+            'total_products': total_products,
+            'active_products': active_products,
+            'total_vendors': total_vendors,
+            'total_customers': total_customers,
+            'views_last_30_days': total_views_30d,
+            'contacts_last_30_days': total_contacts_30d,
+        }
 
-        sales_chart_labels = [s['month'].strftime('%b %Y') for s in sales_by_month]
-        sales_chart_data = [s['total'] for s in sales_by_month]
-        
-        # 3. Category Chart Data
-        category_data = Product.objects.values('category__name').annotate(count=Count('id'))
-        category_chart_labels = [c['category__name'] for c in category_data]
-        category_chart_data = [c['count'] for c in category_data]
+        # 2. Vendor tier distribution
+        tier_distribution = UserProfile.objects.filter(role='vendor').values('vendor_tier').annotate(count=Count('id'))
 
-        # 4. Recent Orders
-        recent_orders = Order.objects.order_by('-created_at')[:5].values(
-            'id', 'user__first_name', 'user__last_name', 'total_price', 'status'
+        # 3. Top products by views
+        top_viewed_products = Product.objects.filter(is_active=True).order_by('-view_count')[:10].values(
+            'id', 'name', 'view_count', 'contact_reveal_count'
         )
 
-        # Structure the response
-        data = {
-            "kpiData": {
-                "totalSales": total_sales,
-                "newOrders": total_orders, # Using total orders for now
-                "newCustomers": total_customers,
-                "pendingOrders": Order.objects.filter(status='Pending').count()
-            },
-            "salesData": {
-                "labels": sales_chart_labels,
-                "data": sales_chart_data
-            },
-            "categoryData": {
-                "labels": category_chart_labels,
-                "data": category_chart_data
-            },
-            "recentOrders": [
-                {
-                    "id": f"ORD-{o['id']}",
-                    "customer": f"{o['user__first_name']} {o['user__last_name']}",
-                    "total": o['total_price'],
-                    "status": o['status']
-                } for o in recent_orders
-            ]
-        }
-        
-        return Response(data)
+        # 4. Top products by contact reveals
+        top_contacted_products = Product.objects.filter(is_active=True).order_by('-contact_reveal_count')[:10].values(
+            'id', 'name', 'view_count', 'contact_reveal_count'
+        )
+
+        # 5. Recent products (last 7 days)
+        seven_days_ago = timezone.now() - timedelta(days=7)
+        recent_products_list = Product.objects.filter(created_at__gte=seven_days_ago).order_by('-created_at')[:20].values(
+            'id', 'name', 'created_at', 'vendor__email', 'view_count'
+        )
+
+        return Response({
+            'success': True,
+            'kpi': kpi_data,
+            'tier_distribution': list(tier_distribution),
+            'top_viewed_products': list(top_viewed_products),
+            'top_contacted_products': list(top_contacted_products),
+            'recent_products': list(recent_products_list),
+        })

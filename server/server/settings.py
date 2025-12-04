@@ -38,20 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Third party apps
     'rest_framework',
-    'rest_framework_simplejwt',           # Add this for JWT
-    'rest_framework_simplejwt.token_blacklist',  # Add this for token blacklisting
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'django_filters',
     'corsheaders',
     "django_extensions",
-    
+
     # Your apps
     'products',
-    'authentication',                     # Add this (your new auth app)
-    'orders',
-    'cart',
+    'authentication',
     'admin_panel',
 ]
 
@@ -220,6 +218,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (User uploaded content)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
