@@ -77,7 +77,8 @@ function userReducer(state, action) {
     case USER_ACTIONS.UPDATE_USER:
       return {
         ...state,
-        user: { ...state.user, ...action.payload }
+        user: { ...state.user, ...action.payload },
+        userRole: action.payload.role || state.userRole
       };
     case USER_ACTIONS.SET_LOADING:
       return {
@@ -350,6 +351,29 @@ export function UserProvider({ children }) {
   // Update user profile
   const updateUser = async (updates) => {
     try {
+      // If updates include a user object directly (from vendor upgrade), use it
+      if (updates.role || updates.email) {
+        const updatedUser = { ...state.user, ...updates };
+
+        dispatch({
+          type: USER_ACTIONS.UPDATE_USER,
+          payload: updatedUser
+        });
+
+        localStorage.setItem('kipsunya_user', JSON.stringify(updatedUser));
+
+        // If new tokens are provided, update them
+        if (updates.accessToken) {
+          localStorage.setItem('kipsunya_jwt_token', updates.accessToken);
+        }
+        if (updates.refreshToken) {
+          localStorage.setItem('kipsunya_refresh_token', updates.refreshToken);
+        }
+
+        return { success: true };
+      }
+
+      // Otherwise, make API call to update profile
       const token = localStorage.getItem('kipsunya_jwt_token');
       const response = await fetch(`${API_BASE_API}/auth/profile/`, {
         method: 'PUT',
@@ -367,9 +391,9 @@ export function UserProvider({ children }) {
           type: USER_ACTIONS.UPDATE_USER,
           payload: data.user
         });
-        
+
         localStorage.setItem('kipsunya_user', JSON.stringify(data.user));
-        
+
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Update failed' };
@@ -437,6 +461,7 @@ export function UserProvider({ children }) {
     register,
     logout,
     updateUser,
+    updateUserProfile: updateUser, // Alias for backwards compatibility
     clearError,
     getAuthToken,
     apiCall,

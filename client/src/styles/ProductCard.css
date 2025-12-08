@@ -308,6 +308,205 @@
 }
 .product-card-auth-prompt a:hover { text-decoration: underline; }
 
+/* --- Vendor Information Section --- */
+.vendor-info-section {
+    background: var(--pc-background-light);
+    border: 1px solid var(--pc-border-light);
+    border-radius: var(--pc-radius);
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+.vendor-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--pc-text-secondary);
+    font-size: 0.9rem;
+}
+
+.vendor-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.vendor-info-item svg {
+    color: var(--pc-primary);
+    flex-shrink: 0;
+}
+
+.vendor-info-item .business-name {
+    font-weight: 600;
+    color: var(--pc-text-primary);
+}
+
+/* --- Contact Reveal Section --- */
+.contact-reveal-section {
+    margin: 2rem 0;
+}
+
+.contact-auth-prompt {
+    background: var(--pc-primary-light);
+    border: 1px solid var(--pc-primary);
+    border-radius: var(--pc-radius);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.contact-auth-prompt a {
+    color: var(--pc-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.contact-auth-prompt a:hover {
+    text-decoration: underline;
+}
+
+.reveal-contact-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--pc-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--pc-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.reveal-contact-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+    box-shadow: var(--pc-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.reveal-contact-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- Contact Information Revealed --- */
+.contact-info-revealed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #10b981;
+    border-radius: var(--pc-radius-lg);
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.contact-info-revealed h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--pc-text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--pc-radius);
+    border: 1px solid #d1fae5;
+}
+
+.contact-item svg {
+    color: var(--pc-success);
+    flex-shrink: 0;
+}
+
+.contact-label {
+    font-weight: 600;
+    color: var(--pc-text-secondary);
+    min-width: 80px;
+}
+
+.contact-value {
+    color: var(--pc-text-primary);
+    font-weight: 500;
+}
+
+.contact-link {
+    color: var(--pc-primary);
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--pc-transition);
+}
+
+.contact-link:hover {
+    color: var(--pc-primary-hover);
+    text-decoration: underline;
+}
+
+.contact-link.whatsapp {
+    color: #25d366;
+}
+
+.contact-link.whatsapp:hover {
+    color: #128c7e;
+}
+
+.contact-hint {
+    font-size: 0.8125rem;
+    color: var(--pc-text-muted);
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Tier badges - reuse from Products page */
+.tier-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    z-index: 1;
+    text-transform: uppercase;
+}
+
+.featured-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+}
+
+.premium-badge {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.basic-badge {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
 /* --- Description & Details Section --- */
 .product-card-details-section {
   display: grid;

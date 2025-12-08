@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../context/UserContext";
-import { useCart } from "../context/CartContext";
 import "../styles/ProductCard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import API_BASE_URL from '../config'
 
-// Icons used within the product card body
-const BuyNowIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg> );
-const AddToCartIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> );
+// Icons
+const PhoneIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg> );
+const WhatsAppIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg> );
+const LocationIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg> );
 
 function ProductCard() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [quantity, setQuantity] = useState(1);
-    const [successMessage, setSuccessMessage] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [contactInfo, setContactInfo] = useState(null);
+    const [revealingContact, setRevealingContact] = useState(false);
+    const [revealError, setRevealError] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
 
     // Contexts
-    const { isAuthenticated } = useUser();
-    const { addToCart, loading: cartLoading, getProductQuantityInCart, isInCart } = useCart();
+    const { isAuthenticated, getAuthToken } = useUser();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -67,33 +66,38 @@ function ProductCard() {
         }).format(price);
     };
 
-    const handleAddToCart = async () => {
+    const handleRevealContact = async () => {
         if (!isAuthenticated) {
-            navigate('/login', { state: { from: `/product/${id}`, message: 'Please log in to add items to your cart.' } });
+            navigate('/login', { state: { from: `/product/${id}`, message: 'Please log in to view vendor contact information.' } });
             return;
         }
 
-        const result = await addToCart(product.id, quantity, {
-            onSuccess: (message) => {
-                setSuccessMessage(message);
-                setErrorMessage(null);
-                setTimeout(() => setSuccessMessage(null), 3000);
-            },
-            onError: (error) => {
-                setErrorMessage(error);
-                setSuccessMessage(null);
-                setTimeout(() => setErrorMessage(null), 5000);
+        setRevealingContact(true);
+        setRevealError(null);
+
+        try {
+            const token = getAuthToken();
+            const response = await fetch(`${API_BASE_URL}/api/products/${id}/reveal-contact/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.contact) {
+                setContactInfo(data.contact);
+            } else {
+                setRevealError(data.error || 'Failed to retrieve contact information');
             }
-        });
-    };
-
-    const handleBuyNow = () => {
-        if (!isAuthenticated) {
-            navigate('/login', { state: { from: `/product/${id}`, message: 'Please log in to purchase items.' } });
-            return;
+        } catch (error) {
+            console.error('Error revealing contact:', error);
+            setRevealError('Network error. Please try again.');
+        } finally {
+            setRevealingContact(false);
         }
-        
-        navigate('/checkout', { state: { product, quantity: quantity, directPurchase: true } });
     };
 
     const handleBack = () => navigate(-1);
@@ -137,9 +141,11 @@ function ProductCard() {
                 <main className="product-card-main">
                     <div className="product-card-images">
                         <div className="product-card-main-image">
-                            {product.featured && <span className="product-card-featured-badge">Featured</span>}
-                            <img 
-                                src={product.image_url || '/api/placeholder/600/600'} 
+                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge">⭐ FEATURED</span>}
+                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge">💎 PREMIUM</span>}
+                            {product.vendor_tier === 'basic' && <span className="tier-badge basic-badge">BASIC</span>}
+                            <img
+                                src={product.image ? `${API_BASE_URL}${product.image}` : '/api/placeholder/600/600'}
                                 alt={product.name}
                                 onError={(e) => { e.target.src = '/api/placeholder/600/600'; }}
                             />
@@ -166,95 +172,86 @@ function ProductCard() {
                             {product.description.split('\n')[0]}
                         </div>
 
-                        {/* Success/Error Messages */}
-                        {successMessage && (
-                            <div className="product-card-message success">
-                                ✅ {successMessage}
-                            </div>
-                        )}
-                        {errorMessage && (
-                            <div className="product-card-message error">
-                                ❌ {errorMessage}
-                            </div>
-                        )}
-
-                        {/* Cart Status */}
-                        {isAuthenticated && isInCart(product.id) && (
-                            <div className="product-card-cart-status">
-                                🛒 {getProductQuantityInCart(product.id)} in cart
-                            </div>
-                        )}
-
-                        {product.in_stock ? (
-                            <div className="product-card-purchase-section">
-                                <div className="product-card-quantity-selector">
-                                    <label htmlFor="quantity">Quantity</label>
-                                    <div className="product-card-quantity-controls">
-                                        <button
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            disabled={quantity <= 1}
-                                            className="quantity-btn decrease"
-                                        >
-                                            −
-                                        </button>
-                                        <input
-                                            id="quantity"
-                                            type="number"
-                                            value={quantity}
-                                            onChange={(e) => {
-                                                const value = Math.max(1, Math.min(product.stock_quantity, parseInt(e.target.value) || 1));
-                                                setQuantity(value);
-                                            }}
-                                            min="1"
-                                            max={product.stock_quantity}
-                                            className="quantity-input"
-                                        />
-                                        <button
-                                            onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
-                                            disabled={quantity >= product.stock_quantity}
-                                            className="quantity-btn increase"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                    <div className="quantity-info">
-                                        {quantity > 1 && (
-                                            <span className="quantity-total">
-                                                Total: {formatPrice(product.price * quantity)}
-                                            </span>
-                                        )}
-                                    </div>
+                        {/* Vendor Information */}
+                        {product.vendor_location && (
+                            <div className="vendor-info-section">
+                                <div className="vendor-info-item">
+                                    <LocationIcon />
+                                    <span>{product.vendor_location}</span>
                                 </div>
-                                <div className="product-card-action-buttons">
+                                {product.vendor_business && (
+                                    <div className="vendor-info-item">
+                                        <span className="business-name">🏪 {product.vendor_business}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Contact Reveal Section */}
+                        {!contactInfo ? (
+                            <div className="contact-reveal-section">
+                                {revealError && (
+                                    <div className="product-card-message error">
+                                        ❌ {revealError}
+                                    </div>
+                                )}
+
+                                {!isAuthenticated ? (
+                                    <div className="contact-auth-prompt">
+                                        <p><Link to="/login" state={{ from: `/product/${id}` }}>Log in</Link> or <Link to="/register">create an account</Link> to view vendor contact details.</p>
+                                    </div>
+                                ) : (
                                     <button
-                                        className="product-card-add-to-cart"
-                                        onClick={handleAddToCart}
-                                        disabled={cartLoading}
+                                        className="reveal-contact-btn"
+                                        onClick={handleRevealContact}
+                                        disabled={revealingContact}
                                     >
-                                        {cartLoading ? (
+                                        {revealingContact ? (
                                             <>
                                                 <div className="product-card-button-spinner"></div>
-                                                Adding...
+                                                Loading...
                                             </>
                                         ) : (
                                             <>
-                                                <AddToCartIcon />
-                                                Add to Cart
+                                                📞 Show Vendor Contact
                                             </>
                                         )}
                                     </button>
-                                    <button className="product-card-buy-now" onClick={handleBuyNow}>
-                                        <BuyNowIcon />
-                                        Buy Now
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         ) : (
-                            <button className="product-card-out-of-stock" disabled>Out of Stock</button>
-                        )}
-                         {!isAuthenticated && (
-                            <div className="product-card-auth-prompt">
-                                <p><Link to="/login" state={{ from: `/product/${id}` }}>Log in</Link> or <Link to="/register">create an account</Link> to purchase.</p>
+                            <div className="contact-info-revealed">
+                                <h3>Vendor Contact Information</h3>
+                                <div className="contact-details">
+                                    {contactInfo.business_name && (
+                                        <div className="contact-item">
+                                            <span className="contact-label">Business:</span>
+                                            <span className="contact-value">{contactInfo.business_name}</span>
+                                        </div>
+                                    )}
+                                    {contactInfo.phone && (
+                                        <div className="contact-item">
+                                            <PhoneIcon />
+                                            <a href={`tel:${contactInfo.phone}`} className="contact-link">
+                                                {contactInfo.phone}
+                                            </a>
+                                        </div>
+                                    )}
+                                    {contactInfo.whatsapp && (
+                                        <div className="contact-item">
+                                            <WhatsAppIcon />
+                                            <a
+                                                href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="contact-link whatsapp"
+                                            >
+                                                {contactInfo.whatsapp}
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="contact-hint">Click on phone or WhatsApp to contact the vendor directly</p>
                             </div>
                         )}
                     </div>

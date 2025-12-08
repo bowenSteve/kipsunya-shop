@@ -181,6 +181,37 @@
     font-weight: 500;
     z-index: 1;
   }
+
+  /* Tier badges */
+  .tier-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+    font-weight: 600;
+    z-index: 1;
+    text-transform: uppercase;
+  }
+
+  .featured-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+  }
+
+  .premium-badge {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+  }
+
+  .basic-badge {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+  }
   .product-title {
     font-size: 1rem;
     font-weight: 500;
@@ -193,8 +224,14 @@
   .product-category {
     color: #6b7280;
     font-size: 0.75rem;
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.5rem 0;
     text-transform: uppercase;
+  }
+
+  .product-location {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0.75rem 0;
   }
   .product-price {
     font-size: 1.125rem;
@@ -275,9 +312,12 @@
   
   .filter-container {
     flex-shrink: 0;
+    display: flex;
+    gap: 0.75rem;
   }
-  
-  .category-select {
+
+  .category-select,
+  .city-select {
     padding: 0.75rem 1rem;
     border: 1px solid #d1d5db;
     border-radius: 8px;
@@ -285,5 +325,12 @@
     color: #374151;
     font-size: 1rem;
     cursor: pointer;
-    min-width: 200px;
+    min-width: 180px;
+  }
+
+  .category-select:focus,
+  .city-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }

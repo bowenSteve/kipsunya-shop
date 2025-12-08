@@ -1,4 +1,4 @@
-// src/routes.js - Fixed version without duplicate declaration
+// src/routes.js - Marketplace routes (no cart/orders)
 import LandingPage from "./pages/LandingPage";
 import Products from "./pages/Products";
 import ProductCard from "./pages/ProductCard";
@@ -6,11 +6,9 @@ import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
-import Orders from "./pages/Orders";
-import Cart from "./pages/Cart";
 import VendorUpgrade from "./pages/vendor/VendorUpgrade";
 import Dashboard from "./pages/vendor/Dashboard";
-import Admin from "./pages/admin/Admin"; // Correct path to Admin.js
+import Admin from "./pages/admin/Admin";
 
 import { ProtectedRoute, PublicRoute } from './context/RouteGuards';
 
@@ -59,16 +57,8 @@ export default [
     element: <ProtectedRoute><Profile /></ProtectedRoute>,
   },
   {
-    path: "/orders",
-    element: <ProtectedRoute><Orders /></ProtectedRoute>,
-  },
-  {
-    path: "/cart",
-    element: <ProtectedRoute><Cart /></ProtectedRoute>,
-  },
-  {
     path: "/upgrade-to-vendor",
-    element: <ProtectedRoute><VendorUpgrade /></ProtectedRoute>,
+    element: <ProtectedRoute allowedRoles={['customer']}><VendorUpgrade /></ProtectedRoute>,
   },
   // {
   //   path: "/settings",

@@ -17,7 +17,9 @@ function Products() {
     const [searchTerm, setSearchTerm] = useState(""); // Live value from input
     const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // Value used for filtering
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [currentSort, setCurrentSort] = useState('name');
+    const [selectedCity, setSelectedCity] = useState('all');
+    const [currentSort, setCurrentSort] = useState('tier'); // Default to tier-based ordering
+    const [cities, setCities] = useState([]);
     
     // States for pagination
     const [itemsPerPage] = useState(30);
@@ -57,9 +59,12 @@ useEffect(() => {
             // Now we have all 84 products
             setAllProducts(allFetchedProducts);
 
-            // Derive categories from the complete list
+            // Derive categories and cities from the complete list
             const uniqueCategories = [...new Set(allFetchedProducts.map(p => p.category?.name).filter(Boolean))];
             setCategories(uniqueCategories);
+
+            const uniqueCities = [...new Set(allFetchedProducts.map(p => p.vendor_location?.split(',').pop()?.trim()).filter(Boolean))];
+            setCities(uniqueCities);
 
         } catch (err) {
             console.error('Error fetching all products:', err);
@@ -85,21 +90,42 @@ useEffect(() => {
     const activeProducts = useMemo(() => {
         let processedProducts = [...allProducts];
 
+        // Filter by category
         if (selectedCategory !== 'all') {
             processedProducts = processedProducts.filter(p => p.category?.name === selectedCategory);
         }
 
-        // This still filters based on the applied term, which is now controlled by both
-        // the search button and the automatic reset effect.
+        // Filter by city/location
+        if (selectedCity !== 'all') {
+            processedProducts = processedProducts.filter(p => {
+                const city = p.vendor_location?.split(',').pop()?.trim();
+                return city === selectedCity;
+            });
+        }
+
+        // Filter by search term
         if (appliedSearchTerm.trim() !== '') {
             const lowercasedTerm = appliedSearchTerm.toLowerCase().trim();
-            processedProducts = processedProducts.filter(p => 
-                p.name.toLowerCase().includes(lowercasedTerm) || 
-                (p.description || '').toLowerCase().includes(lowercasedTerm)
+            processedProducts = processedProducts.filter(p =>
+                p.name.toLowerCase().includes(lowercasedTerm) ||
+                (p.description || '').toLowerCase().includes(lowercasedTerm) ||
+                (p.vendor_business || '').toLowerCase().includes(lowercasedTerm)
             );
         }
 
+        // Sort products
         switch (currentSort) {
+            case 'tier':
+                // Sort by tier priority (featured > premium > basic > free)
+                const tierPriority = { 'featured': 4, 'premium': 3, 'basic': 2, 'free': 1 };
+                processedProducts.sort((a, b) => {
+                    const aTier = tierPriority[a.vendor_tier] || 0;
+                    const bTier = tierPriority[b.vendor_tier] || 0;
+                    if (aTier !== bTier) return bTier - aTier;
+                    // If same tier, sort by newest
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                });
+                break;
             case 'price-low':
                 processedProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
                 break;
@@ -110,12 +136,13 @@ useEffect(() => {
                 processedProducts.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
                 break;
             case 'name':
-            default:
                 processedProducts.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            default:
                 break;
         }
         return processedProducts;
-    }, [allProducts, selectedCategory, appliedSearchTerm, currentSort]);
+    }, [allProducts, selectedCategory, selectedCity, appliedSearchTerm, currentSort]);
 
     useEffect(() => {
         setDisplayedProducts(activeProducts.slice(0, itemsPerPage));
@@ -156,6 +183,10 @@ useEffect(() => {
                                 <option value="all">All Categories</option>
                                 {categories.map(cat => (<option key={cat} value={cat}>{cat}</option>))}
                             </select>
+                            <select className="city-select" value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)}>
+                                <option value="all">All Locations</option>
+                                {cities.map(city => (<option key={city} value={city}>{city}</option>))}
+                            </select>
                         </div>
                     </div>
                     <div className="controls-center">
@@ -174,6 +205,7 @@ useEffect(() => {
                     <div className="controls-right">
                         <div className="sort-container">
                             <select className="sort-select" value={currentSort} onChange={handleSortChange}>
+                                <option value="tier">Sort by Vendor Tier</option>
                                 <option value="name">Sort by Name</option>
                                 <option value="price-low">Price: Low to High</option>
                                 <option value="price-high">Price: High to Low</option>
@@ -197,13 +229,20 @@ useEffect(() => {
                                 displayedProducts.map((product) => (
                                     <div key={product.id} className="product-card" onClick={() => handleProductClick(product)}>
                                         <div className="product-image-container">
-                                            {product.featured && <span className="new-badge">FEATURED</span>}
-                                            {product.image_url ? <img src={product.image_url} alt={product.name} className="product-image" /> : <div className="product-placeholder">{product.name}</div>}
+                                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge">⭐ FEATURED</span>}
+                                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge">💎 PREMIUM</span>}
+                                            {product.vendor_tier === 'basic' && <span className="tier-badge basic-badge">BASIC</span>}
+                                            {product.image ? (
+                                                <img src={`${API_BASE_URL}${product.image}`} alt={product.name} className="product-image" />
+                                            ) : (
+                                                <div className="product-placeholder">{product.name}</div>
+                                            )}
                                         </div>
                                         <div className="product-info">
                                             <div className="product-main-info">
                                                 <h3 className="product-title">{truncateName(product.name)}</h3>
                                                 {product.category && <p className="product-category">{product.category.name}</p>}
+                                                {product.vendor_location && <p className="product-location">📍 {product.vendor_location}</p>}
                                             </div>
                                             <div className="product-footer-details">
                                                 <p className="product-price">{formatPrice(product.price)}</p>
