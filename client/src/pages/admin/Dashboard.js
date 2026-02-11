@@ -6,7 +6,7 @@ import { useUser } from '../../context/UserContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement);
 
-const KPI_Card = ({ title, value, icon, format }) => (
+const KpiCard = ({ title, value, icon, format }) => (
     <div className="admin-card kpi-card">
         <div className="kpi-icon">{icon}</div>
         <div className="kpi-content">
@@ -82,10 +82,10 @@ function Dashboard() {
         <div>
             <h1 className="admin-page-title">Dashboard</h1>
             <div className="admin-kpi-grid">
-                <KPI_Card title="Total Sales" value={stats.kpiData.totalSales} icon="💰" format={(v) => `Ksh ${v.toLocaleString()}`} />
-                <KPI_Card title="Total Orders" value={stats.kpiData.newOrders} icon="📦" format={(v) => v.toLocaleString()} />
-                <KPI_Card title="Total Customers" value={stats.kpiData.newCustomers} icon="👥" format={(v) => v.toLocaleString()} />
-                <KPI_Card title="Pending Orders" value={stats.kpiData.pendingOrders} icon="⏳" format={(v) => v.toLocaleString()} />
+                <KpiCard title="Total Sales" value={stats.kpiData.totalSales} icon="💰" format={(v) => `Ksh ${v.toLocaleString()}`} />
+                <KpiCard title="Total Orders" value={stats.kpiData.newOrders} icon="📦" format={(v) => v.toLocaleString()} />
+                <KpiCard title="Total Customers" value={stats.kpiData.newCustomers} icon="👥" format={(v) => v.toLocaleString()} />
+                <KpiCard title="Pending Orders" value={stats.kpiData.pendingOrders} icon="⏳" format={(v) => v.toLocaleString()} />
             </div>
 
             <div className="admin-charts-grid">

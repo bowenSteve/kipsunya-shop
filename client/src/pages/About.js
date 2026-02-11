@@ -1,29 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/About.css';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 function About() {
     return (
         <div className="about-page">
-            {/* Header Navigation */}
-            <header className="about-header">
-                <div className="header-container">
-                    <Link to="/" className="logo">
-                        ( Kipsunya ~ biz )
-                    </Link>
-                    <nav className="header-nav">
-                        <Link to="/" className="nav-link">Home</Link>
-                        <Link to="/products" className="nav-link">Products</Link>
-                        <Link to="/about" className="nav-link active">About</Link>
-                    </nav>
-                    <div className="header-actions">
-                        <Link to="/search" className="search-icon">🔍</Link>
-                        <Link to="/cart" className="cart-icon">🛒</Link>
-                        <Link to="/login" className="login-link">Login</Link>
-                    </div>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Hero Section */}
             <section className="about-hero">

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { useUser } from './UserContext';
 import API_BASE_URL from '../config';
 
@@ -142,7 +142,7 @@ export function CartProvider({ children }) {
     const { isAuthenticated, getAuthToken } = useUser();
 
     // Fetch cart data
-    const fetchCart = async () => {
+    const fetchCart = useCallback(async () => {
         try {
             dispatch({ type: CART_ACTIONS.SET_LOADING, payload: true });
 
@@ -168,7 +168,7 @@ export function CartProvider({ children }) {
         } finally {
             dispatch({ type: CART_ACTIONS.SET_LOADING, payload: false });
         }
-    };
+    }, [getAuthToken]);
 
     // Add item to cart
     const addToCart = async (productId, quantity = 1, options = {}) => {
@@ -391,7 +391,7 @@ export function CartProvider({ children }) {
     // Load cart on mount and when authentication changes
     useEffect(() => {
         fetchCart();
-    }, [isAuthenticated]);
+    }, [isAuthenticated, fetchCart]);
 
     const value = {
         // State

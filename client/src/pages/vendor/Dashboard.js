@@ -193,10 +193,11 @@ const VendorDashboard = () => {
       await Promise.all([fetchProducts(), fetchCategories()]);
       setLoading(false);
     };
-    
+
     if (isAuthenticated && user?.role === 'vendor') {
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
   // Product CRUD operations

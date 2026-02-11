@@ -13,7 +13,7 @@ import Admin from "./pages/admin/Admin";
 import { ProtectedRoute, PublicRoute } from './context/RouteGuards';
 
 // Define and export routes array
-export default [
+const routes = [
   // ========== PUBLIC ROUTES ==========
   // These routes are accessible to everyone
   {
@@ -83,3 +83,5 @@ export default [
     element: <ProtectedRoute allowedRoles={['admin']}><Admin /></ProtectedRoute>,
   },
 ];
+
+export default routes;
