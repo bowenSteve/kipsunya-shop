@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { useUser } from './UserContext';
 import API_BASE_URL from '../config';
 
@@ -390,8 +390,11 @@ export function CartProvider({ children }) {
 
     // Load cart on mount and when authentication changes
     useEffect(() => {
-        fetchCart();
-    }, [isAuthenticated, fetchCart]);
+        if (isAuthenticated) {
+            fetchCart();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const value = {
         // State

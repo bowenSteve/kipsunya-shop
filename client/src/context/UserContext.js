@@ -1,5 +1,5 @@
 // src/contexts/UserContext.js - Updated to not auto-login after registration
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import API_BASE_URL from '../config';
 // Backend API base URL
 const API_BASE_API = `${API_BASE_URL}/api`;
@@ -404,14 +404,14 @@ export function UserProvider({ children }) {
   };
 
   // Clear error
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: USER_ACTIONS.CLEAR_ERROR });
-  };
+  }, []);
 
   // Get auth token
-  const getAuthToken = () => {
+  const getAuthToken = useCallback(() => {
     return localStorage.getItem('kipsunya_jwt_token');
-  };
+  }, []);
 
   // API call helper with auto token refresh
   const apiCall = async (url, options = {}) => {

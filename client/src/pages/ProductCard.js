@@ -4,6 +4,9 @@ import { useUser } from "../context/UserContext";
 import "../styles/ProductCard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { FiStar, FiAlertCircle } from 'react-icons/fi';
+import { IoDiamondOutline } from 'react-icons/io5';
+import { FaStore } from 'react-icons/fa';
 import API_BASE_URL from '../config'
 
 // Icons
@@ -141,8 +144,8 @@ function ProductCard() {
                 <main className="product-card-main">
                     <div className="product-card-images">
                         <div className="product-card-main-image">
-                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge">⭐ FEATURED</span>}
-                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge">💎 PREMIUM</span>}
+                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge"><FiStar /> FEATURED</span>}
+                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge"><IoDiamondOutline /> PREMIUM</span>}
                             {product.vendor_tier === 'basic' && <span className="tier-badge basic-badge">BASIC</span>}
                             <img
                                 src={product.image ? `${API_BASE_URL}${product.image}` : '/api/placeholder/600/600'}
@@ -181,7 +184,7 @@ function ProductCard() {
                                 </div>
                                 {product.vendor_business && (
                                     <div className="vendor-info-item">
-                                        <span className="business-name">🏪 {product.vendor_business}</span>
+                                        <span className="business-name"><FaStore /> {product.vendor_business}</span>
                                     </div>
                                 )}
                             </div>
@@ -192,7 +195,7 @@ function ProductCard() {
                             <div className="contact-reveal-section">
                                 {revealError && (
                                     <div className="product-card-message error">
-                                        ❌ {revealError}
+                                        <FiAlertCircle /> {revealError}
                                     </div>
                                 )}
 
@@ -213,7 +216,7 @@ function ProductCard() {
                                             </>
                                         ) : (
                                             <>
-                                                📞 Show Vendor Contact
+                                                <PhoneIcon /> Show Vendor Contact
                                             </>
                                         )}
                                     </button>

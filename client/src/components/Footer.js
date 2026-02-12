@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FiMapPin, FiPhone, FiMail, FiClock } from 'react-icons/fi';
 import '../styles/Footer.css';
 
 const Footer = () => {
@@ -120,26 +121,26 @@ const Footer = () => {
                             <h4 className="footer-column-title">Contact</h4>
                             <div className="footer-contact">
                                 <div className="contact-item">
-                                    <span className="contact-icon">📍</span>
+                                    <span className="contact-icon"><FiMapPin /></span>
                                     <div className="contact-details">
                                         <p>123 Wellness Boulevard</p>
                                         <p>Nairobi, Kenya</p>
                                     </div>
                                 </div>
                                 <div className="contact-item">
-                                    <span className="contact-icon">📞</span>
+                                    <span className="contact-icon"><FiPhone /></span>
                                     <div className="contact-details">
                                         <p>+254 700 123 456</p>
                                     </div>
                                 </div>
                                 <div className="contact-item">
-                                    <span className="contact-icon">✉️</span>
+                                    <span className="contact-icon"><FiMail /></span>
                                     <div className="contact-details">
                                         <p>info@kipsunya.com</p>
                                     </div>
                                 </div>
                                 <div className="contact-item">
-                                    <span className="contact-icon">🕐</span>
+                                    <span className="contact-icon"><FiClock /></span>
                                     <div className="contact-details">
                                         <p>Mon-Sat: 9AM-8PM</p>
                                         <p>Sunday: 10AM-6PM</p>

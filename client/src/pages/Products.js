@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import "../styles/Products.css";
+import { FiSearch, FiStar, FiMapPin } from 'react-icons/fi';
+import { IoDiamondOutline } from 'react-icons/io5';
 import API_BASE_URL from '../config'
 
 function Products() {
@@ -199,7 +201,7 @@ useEffect(() => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
                             />
-                            <button className="search-button" onClick={handleSearch}>🔍</button>
+                            <button className="search-button" onClick={handleSearch}><FiSearch /></button>
                         </div>
                     </div>
                     <div className="controls-right">
@@ -229,8 +231,8 @@ useEffect(() => {
                                 displayedProducts.map((product) => (
                                     <div key={product.id} className="product-card" onClick={() => handleProductClick(product)}>
                                         <div className="product-image-container">
-                                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge">⭐ FEATURED</span>}
-                                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge">💎 PREMIUM</span>}
+                                            {product.vendor_tier === 'featured' && <span className="tier-badge featured-badge"><FiStar /> FEATURED</span>}
+                                            {product.vendor_tier === 'premium' && <span className="tier-badge premium-badge"><IoDiamondOutline /> PREMIUM</span>}
                                             {product.vendor_tier === 'basic' && <span className="tier-badge basic-badge">BASIC</span>}
                                             {product.image ? (
                                                 <img src={`${API_BASE_URL}${product.image}`} alt={product.name} className="product-image" />
@@ -242,7 +244,7 @@ useEffect(() => {
                                             <div className="product-main-info">
                                                 <h3 className="product-title">{truncateName(product.name)}</h3>
                                                 {product.category && <p className="product-category">{product.category.name}</p>}
-                                                {product.vendor_location && <p className="product-location">📍 {product.vendor_location}</p>}
+                                                {product.vendor_location && <p className="product-location"><FiMapPin /> {product.vendor_location}</p>}
                                             </div>
                                             <div className="product-footer-details">
                                                 <p className="product-price">{formatPrice(product.price)}</p>

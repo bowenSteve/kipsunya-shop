@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FiTarget, FiEye } from 'react-icons/fi';
+import { IoDiamondOutline } from 'react-icons/io5';
+import { FaHandshake, FaRocket, FaGlobeAfrica, FaUserTie, FaLaptopCode, FaCogs, FaUserShield } from 'react-icons/fa';
 import '../styles/About.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -55,14 +58,14 @@ function About() {
                             </p>
                             <div className="story-highlights">
                                 <div className="highlight-item">
-                                    <span className="highlight-icon">🎯</span>
+                                    <span className="highlight-icon"><FiTarget /></span>
                                     <div className="highlight-content">
                                         <h4>Our Mission</h4>
                                         <p>To provide exceptional products and services that enhance our customers' lives</p>
                                     </div>
                                 </div>
                                 <div className="highlight-item">
-                                    <span className="highlight-icon">👁️</span>
+                                    <span className="highlight-icon"><FiEye /></span>
                                     <div className="highlight-content">
                                         <h4>Our Vision</h4>
                                         <p>To become the leading e-commerce platform known for quality and innovation</p>
@@ -85,34 +88,34 @@ function About() {
                     <h2 className="section-title centered">Our Core Values</h2>
                     <div className="values-grid">
                         <div className="value-card">
-                            <div className="value-icon">💎</div>
+                            <div className="value-icon"><IoDiamondOutline /></div>
                             <h3 className="value-title">Quality First</h3>
                             <p className="value-description">
-                                We never compromise on quality. Every product is carefully selected 
+                                We never compromise on quality. Every product is carefully selected
                                 and tested to meet our high standards.
                             </p>
                         </div>
                         <div className="value-card">
-                            <div className="value-icon">🤝</div>
+                            <div className="value-icon"><FaHandshake /></div>
                             <h3 className="value-title">Customer Trust</h3>
                             <p className="value-description">
-                                Building lasting relationships with our customers through transparency, 
+                                Building lasting relationships with our customers through transparency,
                                 reliability, and exceptional service.
                             </p>
                         </div>
                         <div className="value-card">
-                            <div className="value-icon">🚀</div>
+                            <div className="value-icon"><FaRocket /></div>
                             <h3 className="value-title">Innovation</h3>
                             <p className="value-description">
-                                Continuously evolving and adopting new technologies to provide 
+                                Continuously evolving and adopting new technologies to provide
                                 better shopping experiences.
                             </p>
                         </div>
                         <div className="value-card">
-                            <div className="value-icon">🌍</div>
+                            <div className="value-icon"><FaGlobeAfrica /></div>
                             <h3 className="value-title">Sustainability</h3>
                             <p className="value-description">
-                                Committed to responsible business practices and environmental 
+                                Committed to responsible business practices and environmental
                                 stewardship in all our operations.
                             </p>
                         </div>
@@ -130,7 +133,7 @@ function About() {
                     <div className="team-grid">
                         <div className="team-member">
                             <div className="member-photo">
-                                <div className="photo-placeholder">👨‍💼</div>
+                                <div className="photo-placeholder"><FaUserTie /></div>
                             </div>
                             <h4 className="member-name">David Kipkemboi</h4>
                             <p className="member-role">CEO & Founder</p>
@@ -140,7 +143,7 @@ function About() {
                         </div>
                         <div className="team-member">
                             <div className="member-photo">
-                                <div className="photo-placeholder">👩‍💻</div>
+                                <div className="photo-placeholder"><FaLaptopCode /></div>
                             </div>
                             <h4 className="member-name">Sarah Chepkemoi</h4>
                             <p className="member-role">CTO</p>
@@ -150,7 +153,7 @@ function About() {
                         </div>
                         <div className="team-member">
                             <div className="member-photo">
-                                <div className="photo-placeholder">👨‍🎨</div>
+                                <div className="photo-placeholder"><FaCogs /></div>
                             </div>
                             <h4 className="member-name">Michael Rotich</h4>
                             <p className="member-role">Head of Operations</p>
@@ -160,7 +163,7 @@ function About() {
                         </div>
                         <div className="team-member">
                             <div className="member-photo">
-                                <div className="photo-placeholder">👩‍💼</div>
+                                <div className="photo-placeholder"><FaUserShield /></div>
                             </div>
                             <h4 className="member-name">Grace Wanjiku</h4>
                             <p className="member-role">Customer Success Manager</p>

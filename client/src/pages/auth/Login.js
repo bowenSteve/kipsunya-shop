@@ -1,7 +1,8 @@
 // src/pages/auth/Login.js - Fixed to redirect to HOME page, not dashboard
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/UserContext'; // Your correct path
+import Navbar from '../../components/Navbar';
 import '../../styles/Login.css';
 
 function Login() {
@@ -12,21 +13,24 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     
     // Get context functions and state
-    const { login, isLoading, error, isAuthenticated, clearError } = useUser();
+    const { login, isLoading, error, isAuthenticated, user, clearError } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     // Get success message and email from signup redirect
     const signupMessage = location.state?.message;
     const prefillEmail = location.state?.email;
 
-    // Redirect if already authenticated - GO TO HOME PAGE
+    // Redirect authenticated users away from login page
     useEffect(() => {
-        if (isAuthenticated) {
-            console.log('Login - User already authenticated, redirecting to HOME');
-            navigate('/', { replace: true }); // ALWAYS go to HOME page
+        if (isAuthenticated && !isLoading) {
+            const userRole = user?.role || 'customer';
+            const redirectPath = userRole === 'admin' ? '/admin'
+                : userRole === 'vendor' ? '/vendor/dashboard'
+                : '/';
+            navigate(redirectPath, { replace: true });
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, isLoading, user, navigate]);
 
     // Clear error when component mounts and prefill email if coming from signup
     useEffect(() => {
@@ -51,8 +55,6 @@ const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-        console.log('Login - Starting login process');
-        
         if (!formData.email || !formData.password) {
             throw new Error('Please fill in all fields');
         }
@@ -61,14 +63,20 @@ const handleSubmit = async (e) => {
             throw new Error('Please enter a valid email address');
         }
 
-        // Use the login function from context.
-        // We don't even need to wait for the result here, as the context
-        // update will trigger the redirect automatically via PublicRoute.
-        await login(formData);
-        
-        // No more navigation logic here!
-        // The PublicRoute component will handle the redirect.
-        
+        // Call login and wait for result
+        const result = await login(formData);
+
+        // If login successful, redirect immediately
+        if (result.success) {
+            // Redirect based on user role
+            const userRole = result.user?.role || 'customer';
+            const redirectPath = userRole === 'admin' ? '/admin'
+                : userRole === 'vendor' ? '/vendor/dashboard'
+                : '/';
+
+            navigate(redirectPath, { replace: true });
+        }
+
     } catch (err) {
         console.error('Login - Client-side error:', err.message);
     }
@@ -76,7 +84,6 @@ const handleSubmit = async (e) => {
 
     const handleGoogleLogin = async () => {
         try {
-            console.log('Initiating Google login...');
             alert('Google login integration coming soon!');
         } catch (err) {
             console.error('Google login failed:', err);
@@ -89,34 +96,7 @@ const handleSubmit = async (e) => {
 
     return (
         <div className="login-page">
-            {/* Debug Panel */}
-            <div style={{ 
-                position: 'fixed', 
-                top: 0, 
-                right: 0, 
-                background: 'black', 
-                color: 'white', 
-                padding: '10px', 
-                fontSize: '12px',
-                zIndex: 9999 
-            }}>
-                Login Debug: Auth={isAuthenticated ? 'true' : 'false'}, 
-                Loading={isLoading ? 'true' : 'false'}
-            </div>
-
-            {/* Header */}
-            <header className="login-header">
-                <div className="header-container">
-                    <Link to="/" className="logo">
-                        ( Kipsunya ~ biz )
-                    </Link>
-                    <nav className="header-nav">
-                        <Link to="/" className="nav-link">Home</Link>
-                        <Link to="/products" className="nav-link">Products</Link>
-                        <Link to="/about" className="nav-link">About</Link>
-                    </nav>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Main Content */}
             <main className="login-main">

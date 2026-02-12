@@ -1,5 +1,5 @@
 // src/pages/auth/SignUp.js - SIMPLIFIED AND FIXED
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import '../../styles/SignUp.css';
@@ -18,11 +18,19 @@ function SignUp() {
     const [acceptTerms, setAcceptTerms] = useState(false);
     
     // Get context functions and state
-    const { register, isLoading, error, clearError } = useUser();
+    const { register, isLoading, error, isAuthenticated, user, clearError } = useUser();
     const navigate = useNavigate();
 
-    // The PublicRoute component handles redirecting already-authenticated users.
-    // We can remove the useEffect that did this job.
+    // Redirect authenticated users away from signup page
+    useEffect(() => {
+        if (isAuthenticated && !isLoading) {
+            const userRole = user?.role || 'customer';
+            const redirectPath = userRole === 'admin' ? '/admin'
+                : userRole === 'vendor' ? '/vendor/dashboard'
+                : '/';
+            navigate(redirectPath, { replace: true });
+        }
+    }, [isAuthenticated, isLoading, user, navigate]);
 
     // Clear error when component mounts or unmounts
     useEffect(() => {
@@ -62,8 +70,6 @@ function SignUp() {
         }
 
         try {
-            console.log('Starting registration...');
-            
             const userData = {
                 first_name: formData.firstName,
                 last_name: formData.lastName,
@@ -72,16 +78,14 @@ function SignUp() {
             };
 
             const result = await register(userData);
-            
+
             if (result.success) {
-                console.log('Registration successful, redirecting to login page.');
-                
                 // THE FIX: Navigate IMMEDIATELY on success.
                 // Do not show an intermediate success screen in this component.
                 // Pass the success message and email to the Login component.
-                navigate('/login', { 
+                navigate('/login', {
                     replace: true, // Replace the /register page in history
-                    state: { 
+                    state: {
                         message: result.message || 'Account created successfully! Please log in.',
                         email: formData.email // Prefill the email on the login form
                     }

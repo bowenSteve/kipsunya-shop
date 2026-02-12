@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
+import { FaStore, FaRocket } from 'react-icons/fa';
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -79,25 +81,25 @@ function Navbar() {
                                         <div className="profile-dropdown-divider"></div>
                                         <div className="profile-dropdown-items">
                                             <button className="profile-dropdown-item" onClick={() => { navigate('/profile'); setShowProfileDropdown(false); }}>
-                                                <span className="item-icon">👤</span> Profile Settings
+                                                <span className="item-icon"><FiUser /></span> Profile Settings
                                             </button>
                                             {currentRole === 'vendor' ? (
                                                 <button className="profile-dropdown-item" onClick={() => { navigate('/vendor/dashboard'); setShowProfileDropdown(false); }}>
-                                                    <span className="item-icon">🏪</span> Vendor Dashboard
+                                                    <span className="item-icon"><FaStore /></span> Vendor Dashboard
                                                 </button>
                                             ) : currentRole === 'customer' ? (
                                                 <button className="profile-dropdown-item" onClick={() => { navigate('/upgrade-to-vendor'); setShowProfileDropdown(false); }}>
-                                                    <span className="item-icon">🚀</span> Become a Vendor
+                                                    <span className="item-icon"><FaRocket /></span> Become a Vendor
                                                 </button>
                                             ) : null}
                                             {currentRole === 'admin' && (
                                                 <button className="profile-dropdown-item" onClick={() => { navigate('/admin'); setShowProfileDropdown(false); }}>
-                                                    <span className="item-icon">⚙️</span> Admin Panel
+                                                    <span className="item-icon"><FiSettings /></span> Admin Panel
                                                 </button>
                                             )}
                                             <div className="profile-dropdown-divider"></div>
                                             <button className="profile-dropdown-item logout-item" onClick={handleLogoutClick}>
-                                                <span className="item-icon">🚪</span> Sign Out
+                                                <span className="item-icon"><FiLogOut /></span> Sign Out
                                             </button>
                                         </div>
                                     </div>
